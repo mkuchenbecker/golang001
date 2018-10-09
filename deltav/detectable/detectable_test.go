@@ -40,12 +40,44 @@ func TesDetectableLookback(t *testing.T) {
 	pos.Register(NewTraceDetectable(0, 0, 0, 4, "E"))
 
 	req := DetectRequest{Pos: Position{X: 1, Y: 0, Z: 0, T: 3},
-		Range: 10, Filter: []PropertyType{GammaRadiation}}
+		Range: 10, Filter: []PropertyType{}}
 
 	resp := pos.Detect(req)
 
 	assert.Equal(t, 1, len(resp.detected))
 	assert.Equal(t, "C", resp.detected[0].GetID())
+}
+
+func TestDetectableRange(t *testing.T) {
+	InverseCSquared = 1 //Overwrite to make math easier.
+	var pos PositionSystem = NewDetectableDatabase()
+	prop := Property{Intensity: 10, PropertyType: GammaRadiation}
+	pos.Register(NewTraceDetectable(10, 0, 0, 0, "A").AddProperty(prop))
+	pos.Register(NewTraceDetectable(100, 0, 0, 0, "B").AddProperty(prop))
+	pos.Register(NewTraceDetectable(10, 0, 0, 0, "C")) //Is not gamma.
+
+	// A is found but c is not because we're filtering for gamma.
+	req := DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 10},
+		Range: 10, Filter: []PropertyType{GammaRadiation}}
+	resp := pos.Detect(req)
+	assert.Equal(t, 1, len(resp.detected))
+	assert.Equal(t, "A", resp.detected[0].GetID())
+
+	//Won't see B because its too far away
+	req = DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 100},
+		Range: 10, Filter: []PropertyType{GammaRadiation}}
+
+	resp = pos.Detect(req)
+	assert.Equal(t, 0, len(resp.detected))
+
+	//Will see B with higher range.
+	req = DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 100},
+		Range: 1000, Filter: []PropertyType{GammaRadiation}}
+
+	resp = pos.Detect(req)
+
+	assert.Equal(t, 1, len(resp.detected))
+	assert.Equal(t, "B", resp.detected[0].GetID())
 }
 
 func TestDetectableMultiItem(t *testing.T) {
@@ -74,7 +106,7 @@ func TestDetectableMultiItem(t *testing.T) {
 	assert.Equal(t, 100, len(pos.(*DetectableDatabase).db["F"].hist))
 
 	req := DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 12},
-		Range: 10, Filter: []PropertyType{GammaRadiation}}
+		Range: 10, Filter: []PropertyType{}}
 
 	resp := pos.Detect(req)
 
@@ -102,7 +134,7 @@ func TestDetectPerformance(t *testing.T) {
 
 	beforeTime := time.Now()
 	req := DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 60},
-		Range: 10, Filter: []PropertyType{GammaRadiation}}
+		Range: 10, Filter: []PropertyType{}}
 
 	pos.Detect(req)
 	afterTime := time.Now()
@@ -141,26 +173,26 @@ func TestPrune(t *testing.T) {
 	assert.Equal(t, int64(21), pos.Size()) //Inly the last 20 seconds are retained.
 }
 
-func TestPrunePerfromance(t *testing.T) {
-	InverseCSquared = DefaultInverseC()
-	fmt.Printf("%f\n", InverseCSquared)
-	pos := getLargeRandomPS(60, 1000)
+// func TestPrunePerfromance(t *testing.T) {
+// 	InverseCSquared = DefaultInverseC()
+// 	fmt.Printf("%f\n", InverseCSquared)
+// 	pos := getLargeRandomPS(60, 1000)
 
-	assert.Equal(t, int64(60*60*1000), pos.Size())
+// 	assert.Equal(t, int64(60*60*1000), pos.Size())
 
-	// Pruning a big db is 100 ms
-	beforeTime := time.Now()
-	pos.Prune(60 * 60)
-	afterTime := time.Now()
+// 	// Pruning a big db is 100 ms
+// 	beforeTime := time.Now()
+// 	pos.Prune(60 * 60)
+// 	afterTime := time.Now()
 
-	assert.WithinDuration(t, beforeTime, afterTime, 100*time.Millisecond)
-	assert.Equal(t, int64(6*1000), pos.Size())
+// 	assert.WithinDuration(t, beforeTime, afterTime, 100*time.Millisecond)
+// 	assert.Equal(t, int64(6*1000), pos.Size())
 
-	//Pruining a "pruned" db is fast.
-	beforeTime = time.Now()
-	pos.Prune(60 * 60)
-	afterTime = time.Now()
+// 	//Pruining a "pruned" db is fast.
+// 	beforeTime = time.Now()
+// 	pos.Prune(60 * 60)
+// 	afterTime = time.Now()
 
-	assert.WithinDuration(t, beforeTime, afterTime, 20*time.Millisecond)
-	assert.Equal(t, int64(6*1000), pos.Size())
-}
+// 	assert.WithinDuration(t, beforeTime, afterTime, 20*time.Millisecond)
+// 	assert.Equal(t, int64(6*1000), pos.Size())
+// }

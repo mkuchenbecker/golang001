@@ -26,7 +26,7 @@ func (p *Position) Subtract(n *Position) *Position {
 
 type DetectRequest struct {
 	Pos    Position
-	Range  int
+	Range  float64
 	Filter []PropertyType
 }
 

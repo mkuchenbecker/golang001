@@ -9,7 +9,7 @@ import (
 
 type Property struct {
 	Intensity    float32
-	PropertyType string
+	PropertyType PropertyType
 }
 
 type PropertyType int
@@ -30,6 +30,11 @@ type TraceDetectable struct {
 func NewTraceDetectable(x float64, y float64, z float64, t float64, id string) *TraceDetectable {
 	return &TraceDetectable{Pos: Position{X: x, Y: y, Z: z, T: t}, ID: id,
 		Properties: make(map[PropertyType]*Property)}
+}
+
+func (td *TraceDetectable) AddProperty(p Property) *TraceDetectable {
+	td.Properties[p.PropertyType] = &p
+	return td
 }
 
 func (td *TraceDetectable) GetPosition() Position {
@@ -53,10 +58,30 @@ func (td *TraceDetectable) Compare(req DetectRequest) bool {
 		return false
 	}
 	deltaPos := td.Pos.Subtract(&req.Pos)
-	lightTravelTimeSquared := deltaPos.MagnitudeSquared() * InverseCSquared
+	sqMag := deltaPos.MagnitudeSquared()
+	lightTravelTimeSquared := sqMag * InverseCSquared
 	deltaTimeSquared := math.Pow(deltaPos.T, 2)
+	if math.Abs(lightTravelTimeSquared-deltaTimeSquared) >= 1 {
+		return false
+	}
 
-	return math.Abs(lightTravelTimeSquared-deltaTimeSquared) < 1
+	if req.Range*req.Range < sqMag {
+		return false
+	}
+
+	if len(req.Filter) == 0 {
+		return true
+	}
+
+	for _, pt := range req.Filter {
+		for key := range td.Properties {
+			if key == pt {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 type DetectableHistory struct {
@@ -143,7 +168,7 @@ func (db *DetectableDatabase) Prune(currTime float64) {
 	}
 
 	fmt.Printf("maxMag %f", maxMagSqrd)
-	minTime := currTime - math.Sqrt(maxMagSqrd)*2*math.Sqrt(InverseCSquared) //TODO: Invc cubed?
+	minTime := currTime - math.Sqrt(maxMagSqrd)*2*math.Sqrt(InverseCSquared)
 	fmt.Printf("pruning before time %f", minTime)
 	done := make([](chan bool), len(db.db))
 	i := 0
