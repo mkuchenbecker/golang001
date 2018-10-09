@@ -111,11 +111,12 @@ func TestDetectPerformance(t *testing.T) {
 }
 
 func TestDbSize(t *testing.T) {
-	InverseCSquared = 0.001
+	InverseCSquared = DefaultInverseC()
+	fmt.Printf("%f\n", InverseCSquared)
 	pos := getLargeRandomPS(60, 1000)
 
 	assert.Equal(t, int64(60*60*1000), pos.Size())
 
 	pos.Prune(60 * 60)
-	assert.NotEqual(t, int64(60*60*1000), pos.Size())
+	assert.Equal(t, int64(60*60*1000), pos.Size())
 }

@@ -7,8 +7,6 @@ import (
 	"github.com/golang001/deltav/counters"
 )
 
-var InverseCSquared = 0.001
-
 type Property struct {
 	Intensity    float32
 	PropertyType string
@@ -136,7 +134,7 @@ func (db *DetectableDatabase) Prune(currTime float64) {
 		}
 	}
 	minTime := currTime - maxMag*2*InverseCSquared
-	fmt.Printf("pruning before time %f", maxMag)
+	fmt.Printf("pruning before time %f", minTime)
 	for _, hist := range db.db {
 		for k := range hist.hist {
 			if k < minTime {

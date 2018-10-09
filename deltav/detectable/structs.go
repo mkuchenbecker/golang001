@@ -2,6 +2,13 @@ package detectable
 
 import "math"
 
+const C = float64(1000) // Units / second
+var InverseCSquared = math.Pow(1/C, 2)
+
+func DefaultInverseC() float64 {
+	return math.Pow(float64(1)/C, 2)
+}
+
 type Position struct {
 	X float64
 	Y float64
