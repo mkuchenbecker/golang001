@@ -101,7 +101,7 @@ func TestDetectPerformance(t *testing.T) {
 	pos := getLargeRandomPS(60, 1000)
 
 	beforeTime := time.Now()
-	req := DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 50},
+	req := DetectRequest{Pos: Position{X: 0, Y: 0, Z: 0, T: 60},
 		Range: 10, Filter: []PropertyType{GammaRadiation}}
 
 	pos.Detect(req)
@@ -110,13 +110,57 @@ func TestDetectPerformance(t *testing.T) {
 	assert.WithinDuration(t, beforeTime, afterTime, 10*time.Millisecond)
 }
 
-func TestDbSize(t *testing.T) {
+func TestPrune(t *testing.T) {
+	InverseCSquared = 0.01
+	pos := NewDetectableDatabase()
+
+	pos.Register(NewTraceDetectable(10, 0, 0, 1, "A"))
+	pos.Register(NewTraceDetectable(20, 0, 0, 2, "A"))
+	pos.Register(NewTraceDetectable(30, 0, 0, 3, "A"))
+	pos.Register(NewTraceDetectable(40, 0, 0, 4, "A"))
+	pos.Register(NewTraceDetectable(50, 0, 0, 5, "A"))
+	pos.Register(NewTraceDetectable(60, 0, 0, 6, "A"))
+	pos.Register(NewTraceDetectable(70, 0, 0, 7, "A"))
+	pos.Register(NewTraceDetectable(80, 0, 0, 8, "A"))
+	pos.Register(NewTraceDetectable(90, 0, 0, 9, "A"))
+	// 10 seconds to origin, 20 seconds retained. Its the furtherst object form the
+	// origin so we double the time it takes light to reach the origin and set that as the retention limit.
+	pos.Register(NewTraceDetectable(100, 0, 0, 10, "A"))
+
+	pos.Prune(10)
+	assert.Equal(t, int64(10), pos.Size()) // Nothing should get pruned.
+
+	for i := float64(11); i <= 30; i++ {
+		pos.Register(NewTraceDetectable(100, 0, 0, i, "A"))
+
+	}
+	assert.Equal(t, int64(30), pos.Size())
+	pos.Prune(20)
+	assert.Equal(t, int64(30), pos.Size())
+	pos.Prune(30)
+	assert.Equal(t, int64(21), pos.Size()) //Inly the last 20 seconds are retained.
+}
+
+func TestPrunePerfromance(t *testing.T) {
 	InverseCSquared = DefaultInverseC()
 	fmt.Printf("%f\n", InverseCSquared)
 	pos := getLargeRandomPS(60, 1000)
 
 	assert.Equal(t, int64(60*60*1000), pos.Size())
 
+	// Pruning a big db is 100 ms
+	beforeTime := time.Now()
 	pos.Prune(60 * 60)
-	assert.NotEqual(t, int64(60*60*1000), pos.Size())
+	afterTime := time.Now()
+
+	assert.WithinDuration(t, beforeTime, afterTime, 100*time.Millisecond)
+	assert.Equal(t, int64(6*1000), pos.Size())
+
+	//Pruining a "pruned" db is fast.
+	beforeTime = time.Now()
+	pos.Prune(60 * 60)
+	afterTime = time.Now()
+
+	assert.WithinDuration(t, beforeTime, afterTime, 20*time.Millisecond)
+	assert.Equal(t, int64(6*1000), pos.Size())
 }

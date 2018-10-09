@@ -135,13 +135,15 @@ func (db *DetectableDatabase) Prune(currTime float64) {
 	// and how long light takes to travel to it. Then, it doubles that
 	// time and removes all elements further than that away from the
 	// origin.
-	maxMag := float64(0)
+	maxMagSqrd := float64(0)
 	for _, hist := range db.db {
-		if hist.maxMagnitudeSqrd > maxMag {
-			maxMag = hist.maxMagnitudeSqrd
+		if hist.maxMagnitudeSqrd > maxMagSqrd {
+			maxMagSqrd = hist.maxMagnitudeSqrd
 		}
 	}
-	minTime := currTime - maxMag*2*InverseCSquared
+
+	fmt.Printf("maxMag %f", maxMagSqrd)
+	minTime := currTime - math.Sqrt(maxMagSqrd)*2*math.Sqrt(InverseCSquared) //TODO: Invc cubed?
 	fmt.Printf("pruning before time %f", minTime)
 	done := make([](chan bool), len(db.db))
 	i := 0
