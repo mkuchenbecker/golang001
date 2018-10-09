@@ -10,7 +10,6 @@ type Position struct {
 }
 
 func (p *Position) MagnitudeSquared() float64 {
-
 	return math.Pow(p.X, 2) + math.Pow(p.Y, 2) + math.Pow(p.Z, 2)
 }
 

@@ -3,6 +3,8 @@ package detectable
 import (
 	"fmt"
 	"math"
+
+	"github.com/golang001/deltav/counters"
 )
 
 var InverseCSquared = 0.001
@@ -59,32 +61,58 @@ func (td *TraceDetectable) Compare(req DetectRequest) bool {
 	return math.Abs(lightTravelTimeSquared-deltaTimeSquared) < 1
 }
 
-type DetectableHistory map[float64]Detectable
+type DetectableHistory struct {
+	hist             map[float64]Detectable
+	maxMagnitudeSqrd float64
+}
+
+func NewDetectableHistory() *DetectableHistory {
+	return &DetectableHistory{hist: make(map[float64]Detectable), maxMagnitudeSqrd: 0}
+}
+
+func (hist *DetectableHistory) Insert(d Detectable) {
+	hist.hist[d.GetPosition().T] = d
+	pos := d.GetPosition()
+	var mag float64 = pos.MagnitudeSquared()
+	if hist.maxMagnitudeSqrd < mag {
+		hist.maxMagnitudeSqrd = mag
+	}
+}
 
 type DetectableDatabase struct {
-	db map[string](*DetectableHistory)
+	//Todo, make threadsafe
+	db    map[string](*DetectableHistory)
+	count *counters.Counter
+}
+
+func (db *DetectableDatabase) Size() int64 {
+	total := int64(0)
+	for _, hist := range db.db {
+		total += int64(len(hist.hist))
+	}
+	return total
 }
 
 func NewDetectableDatabase() *DetectableDatabase {
 	return &DetectableDatabase{
-		db: make(map[string]*DetectableHistory),
+		db:    make(map[string]*DetectableHistory),
+		count: counters.New(),
 	}
 }
 
 func (db *DetectableDatabase) Register(obj Detectable) {
 	hist, ok := db.db[obj.GetID()]
 	if !ok {
-		var tmpHist DetectableHistory = make(map[float64]Detectable)
-		hist = &tmpHist
+		hist = NewDetectableHistory()
 	}
 
-	(*hist)[obj.GetPosition().T] = obj
+	hist.Insert(obj)
 	db.db[obj.GetID()] = hist
 }
 
 func detectThreaded(req DetectRequest, hist *DetectableHistory, detected chan *Detectable) {
 	for i := req.Pos.T; i >= 0; i-- {
-		d, ok := (*hist)[i]
+		d, ok := hist.hist[i]
 		if !ok {
 			continue
 		}
@@ -96,11 +124,34 @@ func detectThreaded(req DetectRequest, hist *DetectableHistory, detected chan *D
 	detected <- nil
 }
 
+func (db *DetectableDatabase) Prune(currTime float64) {
+	// Finds the max distance from the origin from a trackable object
+	// and how long light takes to travel to it. Then, it doubles that
+	// time and removes all elements further than that away from the
+	// origin.
+	maxMag := float64(0)
+	for _, hist := range db.db {
+		if hist.maxMagnitudeSqrd > maxMag {
+			maxMag = hist.maxMagnitudeSqrd
+		}
+	}
+	minTime := currTime - maxMag*2*InverseCSquared
+	fmt.Printf("pruning before time %f", maxMag)
+	for _, hist := range db.db {
+		for k := range hist.hist {
+			if k < minTime {
+				delete(hist.hist, k)
+			}
+		}
+	}
+}
+
 func (db *DetectableDatabase) Detect(req DetectRequest) DetectResponse {
 	resp := DetectResponse{detected: []Detectable{}}
 	detectedChannels := make([](chan *Detectable), len(db.db))
 	counter := 0
-	for _, hist := range db.db {
+	for key, hist := range db.db {
+		db.count.Inc(fmt.Sprintf("detecting.%s", key))
 		detectedChannels[counter] = make(chan *Detectable)
 		go detectThreaded(req, hist, detectedChannels[counter])
 		counter++
