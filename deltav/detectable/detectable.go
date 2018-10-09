@@ -52,13 +52,9 @@ func (td *TraceDetectable) Compare(req DetectRequest) bool {
 	if req.Pos.T < td.Pos.T {
 		return false
 	}
-	pos := td.GetPosition()
-	deltaX := pos.X - req.Pos.X
-	deltaY := pos.Y - req.Pos.Y
-	deltaZ := pos.Z - req.Pos.Z
-	distSquared := math.Pow(deltaX, 2) + math.Pow(deltaY, 2) + math.Pow(deltaZ, 2)
-	lightTravelTimeSquared := distSquared * InverseCSquared
-	deltaTimeSquared := math.Pow(req.Pos.T-pos.T, 2)
+	deltaPos := td.Pos.Subtract(&req.Pos)
+	lightTravelTimeSquared := deltaPos.MagnitudeSquared() * InverseCSquared
+	deltaTimeSquared := math.Pow(deltaPos.T, 2)
 
 	return math.Abs(lightTravelTimeSquared-deltaTimeSquared) < 1
 }
@@ -86,18 +82,32 @@ func (db *DetectableDatabase) Register(obj Detectable) {
 	db.db[obj.GetID()] = hist
 }
 
+func detectThreaded(req DetectRequest, hist *DetectableHistory, detected chan *Detectable) {
+	for i := req.Pos.T; i >= 0; i-- {
+		d, ok := (*hist)[i]
+		if !ok {
+			continue
+		}
+		if d.Compare(req) {
+			detected <- &d
+			break
+		}
+	}
+	detected <- nil
+}
+
 func (db *DetectableDatabase) Detect(req DetectRequest) DetectResponse {
 	resp := DetectResponse{detected: []Detectable{}}
+	detectedChannels := make([](chan *Detectable), len(db.db))
+	counter := 0
 	for _, hist := range db.db {
-		for i := req.Pos.T; i >= 0; i-- {
-			d, ok := (*hist)[i]
-			if !ok {
-				continue
-			}
-			if d.Compare(req) {
-				resp.detected = append(resp.detected, d)
-				break
-			}
+		detectedChannels[counter] = make(chan *Detectable)
+		go detectThreaded(req, hist, detectedChannels[counter])
+		counter++
+	}
+	for _, ch := range detectedChannels {
+		if det := <-ch; det != nil {
+			resp.detected = append(resp.detected, *(det))
 		}
 	}
 	return resp

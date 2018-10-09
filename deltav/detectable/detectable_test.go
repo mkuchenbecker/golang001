@@ -97,6 +97,6 @@ func TestPerformance(t *testing.T) {
 	pos.Detect(req)
 	afterTime := time.Now()
 
-	assert.WithinDuration(t, beforeTime, afterTime, 1000*time.Millisecond)
+	assert.WithinDuration(t, beforeTime, afterTime, 10*time.Millisecond)
 
 }
