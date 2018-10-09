@@ -77,6 +77,14 @@ func (hist *DetectableHistory) Insert(d Detectable) {
 	}
 }
 
+func (hist *DetectableHistory) Prune(minTime float64) {
+	for k := range hist.hist {
+		if k < minTime {
+			delete(hist.hist, k)
+		}
+	}
+}
+
 type DetectableDatabase struct {
 	//Todo, make threadsafe
 	db    map[string](*DetectableHistory)
@@ -135,12 +143,18 @@ func (db *DetectableDatabase) Prune(currTime float64) {
 	}
 	minTime := currTime - maxMag*2*InverseCSquared
 	fmt.Printf("pruning before time %f", minTime)
+	done := make([](chan bool), len(db.db))
+	i := 0
 	for _, hist := range db.db {
-		for k := range hist.hist {
-			if k < minTime {
-				delete(hist.hist, k)
-			}
-		}
+		done[i] = make(chan bool)
+		go func(hist *DetectableHistory, minTime float64, d chan bool) {
+			hist.Prune(minTime)
+			d <- true
+		}(hist, minTime, done[i])
+		i++
+	}
+	for _, d := range done {
+		<-d
 	}
 }
 
