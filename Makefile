@@ -15,6 +15,16 @@ fmt:
 	@echo "fmt:"
 	scripts/fmt
 
+.PHONY: server
+server:	
+	@echo "starting server (ctrl-C to exit)"
+	go run deltav/mastercontrol/main/main.go
+
+.PHONY: client
+client:
+	@echo "running client"
+	go run deltav/shuttle/main/main.go
+
 .PHONY: proto
 proto:
 	@echo "worldmodel:"
