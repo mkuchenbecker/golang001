@@ -16,15 +16,10 @@ fmt:
 	scripts/fmt
 
 .PHONY: proto
-proto: common mc
-
-.PHONY: common
-common:
-	@echo "common:"
-	protoc -I deltav/common/ deltav/common/position.proto --go_out=plugins=grpc:deltav/common
-
-
-.PHONY: mc
-mc:
-	@echo "mastercontrol:"
-	protoc -I deltav/mastercontrol/ deltav/mastercontrol/worldmodel.proto --proto_path=deltav/common --go_out=plugins=grpc:deltav/mastercontrol
+proto:
+	@echo "worldmodel:"
+	protoc -I deltav/protos \
+	deltav/protos/position.proto \
+	deltav/protos/worldmodel.proto \
+	--proto_path=. \
+	--go_out=plugins=grpc:deltav/protos

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package common;
+package deltav.protos;
 
 message Position {
     double X = 1;

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package mastercontrol;
+package deltav.protos;
 
 import "position.proto";
 
@@ -16,12 +16,13 @@ import "position.proto";
 // }
 
 message RegisterRequest {
-    common.Position position = 1;
+    Position position = 1;
     // repeated DetectableProperty properties = 2;
     // repeated
 }
 
 message RegisterResponse {
+    string effect = 1;
 }
 
 message DetectRequest {
