@@ -6,6 +6,7 @@ communicating with other elements. LocalSensors live on the client process but
 remote sensors are network addresses. The network latency can be compensated for
 by subracting the latency from the injected latency.
 */
+/*
 type Shuttle struct {
 	localSensors map[SensorType]*Sensor
 
@@ -29,3 +30,4 @@ type Shuttle struct {
 
 	commandCenter string // In reality, its a grpc address.
 }
+*/

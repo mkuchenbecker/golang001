@@ -1,11 +1,10 @@
-package shuttle
+package main
 
 import (
 	"log"
-	"os"
 	"time"
 
-	ctrl "github.com/golang001/deltav/mastercontrol"
+	protos "github.com/golang001/deltav/protos"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -23,16 +22,11 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := ctrl.NewWorldModelClient()
+	c := protos.NewWorldModelClient(conn)
 
-	// Contact the server and print out its response.
-	name := defaultName
-	if len(os.Args) > 1 {
-		name = os.Args[1]
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.Register(ctx, &ctrl.RegisterRequest{})
+	r, err := c.Register(ctx, &protos.RegisterRequest{})
 	if err != nil {
 		log.Fatalf("could not register: %v", err)
 	}

@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/golang001/deltav/common"
 	"github.com/golang001/deltav/common/counters"
+	protos "github.com/golang001/deltav/protos"
 )
 
 // TraceDetectable is a stuct point-in-time history of an object.
 type TraceDetectable struct {
-	Pos        common.Position
+	Pos        protos.Position
 	Properties map[PropertyType]*Property
 	ID         string
 }
 
 func NewTraceDetectable(x float64, y float64, z float64, t int64, id string) *TraceDetectable {
-	return &TraceDetectable{Pos: common.Position{X: x, Y: y, Z: z, T: t}, ID: id,
+	return &TraceDetectable{Pos: protos.Position{X: x, Y: y, Z: z, T: t}, ID: id,
 		Properties: make(map[PropertyType]*Property)}
 }
 
@@ -25,7 +25,7 @@ func (td *TraceDetectable) AddProperty(p Property) *TraceDetectable {
 	return td
 }
 
-func (td *TraceDetectable) GetPosition() common.Position {
+func (td *TraceDetectable) GetPosition() protos.Position {
 	return td.Pos
 }
 
