@@ -9,6 +9,19 @@ func DefaultInverseC() float64 {
 	return math.Pow(float64(1)/C, 2)
 }
 
+type Property struct {
+	Intensity    float32
+	PropertyType PropertyType
+}
+
+type PropertyType int
+
+var (
+	GammaRadiation PropertyType = 1
+	EMRadiation    PropertyType = 2
+	RFRadiation    PropertyType = 2
+)
+
 type Position struct {
 	X float64
 	Y float64

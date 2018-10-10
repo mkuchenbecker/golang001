@@ -14,3 +14,8 @@ tests: fmt
 fmt:
 	@echo "fmt:"
 	scripts/fmt
+
+.PHONY: protoc
+protoc:
+	@echo "protoc:"
+	protoc -I deltav/controller/ deltav/controller/controller.proto --go_out=plugins=grpc:deltav/controller

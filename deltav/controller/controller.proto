@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package deltav.controller;
+
+
+message Position {
+    double X = 1;
+    double Y = 2;
+    double Z = 3;
+    int64 T = 4;
+}
+
+message DetectableProperty{
+    enum Type {
+        UNKNOWN = 0;
+        RF = 1;
+        GAMMA = 2;
+        THERM = 3;
+    }
+    Type type = 1;
+    float intensity = 2;
+}
+
+message RegisterRequest {
+    Position position = 1;
+    // repeated DetectableProperty properties = 2;
+    // repeated
+}
+
+message RegisterResponse {
+}
+
+message DetectRequest {
+}
+
+message DetectResponse{
+}
+
+
+message GetRequest {
+}
+
+message GetResponse{
+}
+
+service DetectableWorldModelController
+ {
+    rpc Register(RegisterRequest) returns (RegisterResponse) {}
+    rpc Detect(DetectRequest) returns (DetectResponse) {}
+    rpc Get(GetRequest) returns (GetResponse) {}
+    // rpc GetGravity(GetGravityRequest) returns (GetGravityResponse) {}
+
+ }

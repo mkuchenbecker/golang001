@@ -7,19 +7,6 @@ import (
 	"github.com/golang001/deltav/counters"
 )
 
-type Property struct {
-	Intensity    float32
-	PropertyType PropertyType
-}
-
-type PropertyType int
-
-var (
-	GammaRadiation PropertyType = 1
-	EMRadiation    PropertyType = 2
-	RFRadiation    PropertyType = 2
-)
-
 // TraceDetectable is a stuct point-in-time history of an object.
 type TraceDetectable struct {
 	Pos        Position
