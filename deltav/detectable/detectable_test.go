@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getLargeRandomPS(gameLengthMinutes float64, trackableEntities int) *DetectableDatabase {
+func getLargeRandomPS(gameLengthMinutes int64, trackableEntities int) *DetectableDatabase {
 	objs := []*TraceDetectable{}
 	for i := 0; i < trackableEntities; i++ {
 		objs = append(objs,
@@ -18,7 +18,7 @@ func getLargeRandomPS(gameLengthMinutes float64, trackableEntities int) *Detecta
 
 	db := NewDetectableDatabase()
 
-	for i := float64(0); i < gameLengthMinutes*60; i++ {
+	for i := int64(0); i < gameLengthMinutes*60; i++ {
 		for _, obj := range objs {
 			obj.Pos.X += (rand.Float64())
 			obj.Pos.Y += (rand.Float64())
@@ -84,7 +84,7 @@ func TestDetectableMultiItem(t *testing.T) {
 	InverseCSquared = 1 //Overwrite to make math easier.
 	var pos PositionSystem = NewDetectableDatabase()
 
-	for i := float64(0); i < 100; i++ {
+	for i := int64(0); i < 100; i++ {
 		r := rand.Float64() * 1000
 		pos.Register(NewTraceDetectable(r, r, r, i, "A"))
 		pos.Register(NewTraceDetectable(r, r, r, i, "B"))
@@ -162,7 +162,7 @@ func TestPrune(t *testing.T) {
 	pos.Prune(10)
 	assert.Equal(t, int64(10), pos.Size()) // Nothing should get pruned.
 
-	for i := float64(11); i <= 30; i++ {
+	for i := int64(11); i <= 30; i++ {
 		pos.Register(NewTraceDetectable(100, 0, 0, i, "A"))
 
 	}

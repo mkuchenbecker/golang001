@@ -26,7 +26,7 @@ type Position struct {
 	X float64
 	Y float64
 	Z float64
-	T float64
+	T int64
 }
 
 func (p *Position) MagnitudeSquared() float64 {

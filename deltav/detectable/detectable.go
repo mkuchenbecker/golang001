@@ -14,7 +14,7 @@ type TraceDetectable struct {
 	ID         string
 }
 
-func NewTraceDetectable(x float64, y float64, z float64, t float64, id string) *TraceDetectable {
+func NewTraceDetectable(x float64, y float64, z float64, t int64, id string) *TraceDetectable {
 	return &TraceDetectable{Pos: Position{X: x, Y: y, Z: z, T: t}, ID: id,
 		Properties: make(map[PropertyType]*Property)}
 }
@@ -47,8 +47,8 @@ func (td *TraceDetectable) Compare(req DetectRequest) bool {
 	deltaPos := td.Pos.Subtract(&req.Pos)
 	sqMag := deltaPos.MagnitudeSquared()
 	lightTravelTimeSquared := sqMag * InverseCSquared
-	deltaTimeSquared := math.Pow(deltaPos.T, 2)
-	if math.Abs(lightTravelTimeSquared-deltaTimeSquared) >= 1 {
+	deltaTimeSquared := deltaPos.T * deltaPos.T
+	if math.Abs(lightTravelTimeSquared-float64(deltaTimeSquared)) >= 1 {
 		return false
 	}
 
@@ -72,12 +72,12 @@ func (td *TraceDetectable) Compare(req DetectRequest) bool {
 }
 
 type DetectableHistory struct {
-	hist             map[float64]Detectable
+	hist             map[int64]Detectable
 	maxMagnitudeSqrd float64
 }
 
 func NewDetectableHistory() *DetectableHistory {
-	return &DetectableHistory{hist: make(map[float64]Detectable), maxMagnitudeSqrd: 0}
+	return &DetectableHistory{hist: make(map[int64]Detectable), maxMagnitudeSqrd: 0}
 }
 
 func (hist *DetectableHistory) Insert(d Detectable) {
@@ -89,7 +89,7 @@ func (hist *DetectableHistory) Insert(d Detectable) {
 	}
 }
 
-func (hist *DetectableHistory) Prune(minTime float64) {
+func (hist *DetectableHistory) Prune(minTime int64) {
 	for k := range hist.hist {
 		if k < minTime {
 			delete(hist.hist, k)
@@ -142,7 +142,7 @@ func detectThreaded(req DetectRequest, hist *DetectableHistory, detected chan *D
 	detected <- nil
 }
 
-func (db *DetectableDatabase) Prune(currTime float64) {
+func (db *DetectableDatabase) Prune(currTime int64) {
 	// Finds the max distance from the origin from a trackable object
 	// and how long light takes to travel to it. Then, it doubles that
 	// time and removes all elements further than that away from the
@@ -155,13 +155,13 @@ func (db *DetectableDatabase) Prune(currTime float64) {
 	}
 
 	fmt.Printf("maxMag %f", maxMagSqrd)
-	minTime := currTime - math.Sqrt(maxMagSqrd)*2*math.Sqrt(InverseCSquared)
-	fmt.Printf("pruning before time %f", minTime)
+	minTime := currTime - int64(math.Sqrt(maxMagSqrd)*2*math.Sqrt(InverseCSquared))
+	fmt.Printf("pruning before time %d", minTime)
 	done := make([](chan bool), len(db.db))
 	i := 0
 	for _, hist := range db.db {
 		done[i] = make(chan bool)
-		go func(hist *DetectableHistory, minTime float64, d chan bool) {
+		go func(hist *DetectableHistory, minTime int64, d chan bool) {
 			hist.Prune(minTime)
 			d <- true
 		}(hist, minTime, done[i])
