@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/golang001/deltav/controller"
 	"github.com/golang001/deltav/counters"
 )
 
 // TraceDetectable is a stuct point-in-time history of an object.
 type TraceDetectable struct {
-	Pos        Position
+	Pos        controller.Position
 	Properties map[PropertyType]*Property
 	ID         string
 }
 
 func NewTraceDetectable(x float64, y float64, z float64, t int64, id string) *TraceDetectable {
-	return &TraceDetectable{Pos: Position{X: x, Y: y, Z: z, T: t}, ID: id,
+	return &TraceDetectable{Pos: controller.Position{X: x, Y: y, Z: z, T: t}, ID: id,
 		Properties: make(map[PropertyType]*Property)}
 }
 
@@ -24,7 +25,7 @@ func (td *TraceDetectable) AddProperty(p Property) *TraceDetectable {
 	return td
 }
 
-func (td *TraceDetectable) GetPosition() Position {
+func (td *TraceDetectable) GetPosition() controller.Position {
 	return td.Pos
 }
 
