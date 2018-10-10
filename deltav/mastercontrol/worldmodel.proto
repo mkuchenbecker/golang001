@@ -1,25 +1,19 @@
 syntax = "proto3";
 
-package controller;
+package mastercontrol;
 
+import "deltav/common/position.proto";
 
-message Position {
-    double X = 1;
-    double Y = 2;
-    double Z = 3;
-    int64 T = 4;
-}
-
-message DetectableProperty{
-    enum Type {
-        UNKNOWN = 0;
-        RF = 1;
-        GAMMA = 2;
-        THERM = 3;
-    }
-    Type type = 1;
-    float intensity = 2;
-}
+// message DetectableProperty{
+//     enum Type {
+//         UNKNOWN = 0;
+//         RF = 1;
+//         GAMMA = 2;
+//         THERM = 3;
+//     }
+//     Type type = 1;
+//     float intensity = 2;
+// }
 
 message RegisterRequest {
     Position position = 1;
@@ -43,11 +37,10 @@ message GetRequest {
 message GetResponse{
 }
 
-service DetectableWorldModelController
+service WorldModel
  {
     rpc Register(RegisterRequest) returns (RegisterResponse) {}
     rpc Detect(DetectRequest) returns (DetectResponse) {}
     rpc Get(GetRequest) returns (GetResponse) {}
-    // rpc GetGravity(GetGravityRequest) returns (GetGravityResponse) {}
-
  }
+

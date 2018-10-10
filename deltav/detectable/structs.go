@@ -3,7 +3,7 @@ package detectable
 import (
 	"math"
 
-	"github.com/golang001/deltav/controller"
+	"github.com/golang001/deltav/common"
 )
 
 const C = float64(1000) // Units / second
@@ -27,7 +27,7 @@ var (
 )
 
 type DetectRequest struct {
-	Pos    controller.Position
+	Pos    common.Position
 	Range  float64
 	Filter []PropertyType
 }
@@ -42,7 +42,7 @@ type PositionSystem interface {
 }
 
 type Detectable interface {
-	GetPosition() controller.Position
+	GetPosition() common.Position
 	GetProperty(PropertyType) (*Property, error)
 	GetID() string
 	Compare(DetectRequest) bool

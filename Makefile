@@ -15,7 +15,13 @@ fmt:
 	@echo "fmt:"
 	scripts/fmt
 
-.PHONY: protoc
-protoc:
-	@echo "protoc:"
-	protoc -I deltav/controller/ deltav/controller/controller.proto --go_out=plugins=grpc:deltav/controller
+.PHONY: common
+common:
+	@echo "common:"
+	protoc -I deltav/common/ deltav/common/position.proto --go_out=plugins=grpc:deltav/common
+
+
+.PHONY: mc
+mc:
+	@echo "mastercontrol:"
+	protoc -I deltav/mastercontrol/ deltav/mastercontrol/worldmodel.proto --go_out=plugins=grpc:deltav/mastercontrol
