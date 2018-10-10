@@ -15,6 +15,9 @@ fmt:
 	@echo "fmt:"
 	scripts/fmt
 
+.PHONY: proto
+proto: common mc
+
 .PHONY: common
 common:
 	@echo "common:"
@@ -24,4 +27,4 @@ common:
 .PHONY: mc
 mc:
 	@echo "mastercontrol:"
-	protoc -I deltav/mastercontrol/ deltav/mastercontrol/worldmodel.proto --go_out=plugins=grpc:deltav/mastercontrol
+	protoc -I deltav/mastercontrol/ deltav/mastercontrol/worldmodel.proto --proto_path=deltav/common --go_out=plugins=grpc:deltav/mastercontrol

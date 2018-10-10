@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package mastercontrol;
 
-import "deltav/common/position.proto";
+import "position.proto";
 
 // message DetectableProperty{
 //     enum Type {
@@ -16,7 +16,7 @@ import "deltav/common/position.proto";
 // }
 
 message RegisterRequest {
-    Position position = 1;
+    common.Position position = 1;
     // repeated DetectableProperty properties = 2;
     // repeated
 }
