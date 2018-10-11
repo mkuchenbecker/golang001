@@ -30,6 +30,7 @@ proto:
 	@echo "worldmodel:"
 	protoc -I deltav/protos \
 	deltav/protos/position.proto \
+	deltav/protos/vessel.proto \
 	deltav/protos/worldmodel.proto \
 	--proto_path=. \
 	--go_out=plugins=grpc:deltav/protos

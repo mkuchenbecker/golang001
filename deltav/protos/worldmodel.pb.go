@@ -22,18 +22,291 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type IdentificationProperty struct {
+	Transponder          string   `protobuf:"bytes,1,opt,name=transponder,proto3" json:"transponder,omitempty"`
+	InternalId           string   `protobuf:"bytes,2,opt,name=internal_id,json=internalId,proto3" json:"internal_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *IdentificationProperty) Reset()         { *m = IdentificationProperty{} }
+func (m *IdentificationProperty) String() string { return proto.CompactTextString(m) }
+func (*IdentificationProperty) ProtoMessage()    {}
+func (*IdentificationProperty) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a139271552183648, []int{0}
+}
+
+func (m *IdentificationProperty) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IdentificationProperty.Unmarshal(m, b)
+}
+func (m *IdentificationProperty) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IdentificationProperty.Marshal(b, m, deterministic)
+}
+func (m *IdentificationProperty) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IdentificationProperty.Merge(m, src)
+}
+func (m *IdentificationProperty) XXX_Size() int {
+	return xxx_messageInfo_IdentificationProperty.Size(m)
+}
+func (m *IdentificationProperty) XXX_DiscardUnknown() {
+	xxx_messageInfo_IdentificationProperty.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IdentificationProperty proto.InternalMessageInfo
+
+func (m *IdentificationProperty) GetTransponder() string {
+	if m != nil {
+		return m.Transponder
+	}
+	return ""
+}
+
+func (m *IdentificationProperty) GetInternalId() string {
+	if m != nil {
+		return m.InternalId
+	}
+	return ""
+}
+
+type RadiationProperty struct {
+	Type                 RadiationType `protobuf:"varint,1,opt,name=type,proto3,enum=deltav.protos.RadiationType" json:"type,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *RadiationProperty) Reset()         { *m = RadiationProperty{} }
+func (m *RadiationProperty) String() string { return proto.CompactTextString(m) }
+func (*RadiationProperty) ProtoMessage()    {}
+func (*RadiationProperty) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a139271552183648, []int{1}
+}
+
+func (m *RadiationProperty) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RadiationProperty.Unmarshal(m, b)
+}
+func (m *RadiationProperty) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RadiationProperty.Marshal(b, m, deterministic)
+}
+func (m *RadiationProperty) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RadiationProperty.Merge(m, src)
+}
+func (m *RadiationProperty) XXX_Size() int {
+	return xxx_messageInfo_RadiationProperty.Size(m)
+}
+func (m *RadiationProperty) XXX_DiscardUnknown() {
+	xxx_messageInfo_RadiationProperty.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RadiationProperty proto.InternalMessageInfo
+
+func (m *RadiationProperty) GetType() RadiationType {
+	if m != nil {
+		return m.Type
+	}
+	return RadiationType_UNKNOWN_RADIATION_TYPE
+}
+
+type SensorProperty struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *SensorProperty) Reset()         { *m = SensorProperty{} }
+func (m *SensorProperty) String() string { return proto.CompactTextString(m) }
+func (*SensorProperty) ProtoMessage()    {}
+func (*SensorProperty) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a139271552183648, []int{2}
+}
+
+func (m *SensorProperty) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SensorProperty.Unmarshal(m, b)
+}
+func (m *SensorProperty) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SensorProperty.Marshal(b, m, deterministic)
+}
+func (m *SensorProperty) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SensorProperty.Merge(m, src)
+}
+func (m *SensorProperty) XXX_Size() int {
+	return xxx_messageInfo_SensorProperty.Size(m)
+}
+func (m *SensorProperty) XXX_DiscardUnknown() {
+	xxx_messageInfo_SensorProperty.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SensorProperty proto.InternalMessageInfo
+
+type DetectableProperty struct {
+	// Types that are valid to be assigned to Property:
+	//	*DetectableProperty_Id
+	//	*DetectableProperty_Radiation
+	Property             isDetectableProperty_Property `protobuf_oneof:"property"`
+	Intensity            float32                       `protobuf:"fixed32,100,opt,name=intensity,proto3" json:"intensity,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
+	XXX_unrecognized     []byte                        `json:"-"`
+	XXX_sizecache        int32                         `json:"-"`
+}
+
+func (m *DetectableProperty) Reset()         { *m = DetectableProperty{} }
+func (m *DetectableProperty) String() string { return proto.CompactTextString(m) }
+func (*DetectableProperty) ProtoMessage()    {}
+func (*DetectableProperty) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a139271552183648, []int{3}
+}
+
+func (m *DetectableProperty) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DetectableProperty.Unmarshal(m, b)
+}
+func (m *DetectableProperty) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DetectableProperty.Marshal(b, m, deterministic)
+}
+func (m *DetectableProperty) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DetectableProperty.Merge(m, src)
+}
+func (m *DetectableProperty) XXX_Size() int {
+	return xxx_messageInfo_DetectableProperty.Size(m)
+}
+func (m *DetectableProperty) XXX_DiscardUnknown() {
+	xxx_messageInfo_DetectableProperty.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DetectableProperty proto.InternalMessageInfo
+
+type isDetectableProperty_Property interface {
+	isDetectableProperty_Property()
+}
+
+type DetectableProperty_Id struct {
+	Id *IdentificationProperty `protobuf:"bytes,1,opt,name=id,proto3,oneof"`
+}
+
+type DetectableProperty_Radiation struct {
+	Radiation *RadiationProperty `protobuf:"bytes,2,opt,name=radiation,proto3,oneof"`
+}
+
+func (*DetectableProperty_Id) isDetectableProperty_Property() {}
+
+func (*DetectableProperty_Radiation) isDetectableProperty_Property() {}
+
+func (m *DetectableProperty) GetProperty() isDetectableProperty_Property {
+	if m != nil {
+		return m.Property
+	}
+	return nil
+}
+
+func (m *DetectableProperty) GetId() *IdentificationProperty {
+	if x, ok := m.GetProperty().(*DetectableProperty_Id); ok {
+		return x.Id
+	}
+	return nil
+}
+
+func (m *DetectableProperty) GetRadiation() *RadiationProperty {
+	if x, ok := m.GetProperty().(*DetectableProperty_Radiation); ok {
+		return x.Radiation
+	}
+	return nil
+}
+
+func (m *DetectableProperty) GetIntensity() float32 {
+	if m != nil {
+		return m.Intensity
+	}
+	return 0
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*DetectableProperty) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _DetectableProperty_OneofMarshaler, _DetectableProperty_OneofUnmarshaler, _DetectableProperty_OneofSizer, []interface{}{
+		(*DetectableProperty_Id)(nil),
+		(*DetectableProperty_Radiation)(nil),
+	}
+}
+
+func _DetectableProperty_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*DetectableProperty)
+	// property
+	switch x := m.Property.(type) {
+	case *DetectableProperty_Id:
+		b.EncodeVarint(1<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Id); err != nil {
+			return err
+		}
+	case *DetectableProperty_Radiation:
+		b.EncodeVarint(2<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Radiation); err != nil {
+			return err
+		}
+	case nil:
+	default:
+		return fmt.Errorf("DetectableProperty.Property has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _DetectableProperty_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*DetectableProperty)
+	switch tag {
+	case 1: // property.id
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(IdentificationProperty)
+		err := b.DecodeMessage(msg)
+		m.Property = &DetectableProperty_Id{msg}
+		return true, err
+	case 2: // property.radiation
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(RadiationProperty)
+		err := b.DecodeMessage(msg)
+		m.Property = &DetectableProperty_Radiation{msg}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _DetectableProperty_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*DetectableProperty)
+	// property
+	switch x := m.Property.(type) {
+	case *DetectableProperty_Id:
+		s := proto.Size(x.Id)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *DetectableProperty_Radiation:
+		s := proto.Size(x.Radiation)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
 type RegisterRequest struct {
-	Position             *Position `protobuf:"bytes,1,opt,name=position,proto3" json:"position,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
-	XXX_unrecognized     []byte    `json:"-"`
-	XXX_sizecache        int32     `json:"-"`
+	Id                   string                `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Position             *Position             `protobuf:"bytes,2,opt,name=position,proto3" json:"position,omitempty"`
+	Properties           []*DetectableProperty `protobuf:"bytes,3,rep,name=properties,proto3" json:"properties,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *RegisterRequest) Reset()         { *m = RegisterRequest{} }
 func (m *RegisterRequest) String() string { return proto.CompactTextString(m) }
 func (*RegisterRequest) ProtoMessage()    {}
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a139271552183648, []int{0}
+	return fileDescriptor_a139271552183648, []int{4}
 }
 
 func (m *RegisterRequest) XXX_Unmarshal(b []byte) error {
@@ -54,9 +327,23 @@ func (m *RegisterRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RegisterRequest proto.InternalMessageInfo
 
+func (m *RegisterRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
 func (m *RegisterRequest) GetPosition() *Position {
 	if m != nil {
 		return m.Position
+	}
+	return nil
+}
+
+func (m *RegisterRequest) GetProperties() []*DetectableProperty {
+	if m != nil {
+		return m.Properties
 	}
 	return nil
 }
@@ -72,7 +359,7 @@ func (m *RegisterResponse) Reset()         { *m = RegisterResponse{} }
 func (m *RegisterResponse) String() string { return proto.CompactTextString(m) }
 func (*RegisterResponse) ProtoMessage()    {}
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a139271552183648, []int{1}
+	return fileDescriptor_a139271552183648, []int{5}
 }
 
 func (m *RegisterResponse) XXX_Unmarshal(b []byte) error {
@@ -110,7 +397,7 @@ func (m *DetectRequest) Reset()         { *m = DetectRequest{} }
 func (m *DetectRequest) String() string { return proto.CompactTextString(m) }
 func (*DetectRequest) ProtoMessage()    {}
 func (*DetectRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a139271552183648, []int{2}
+	return fileDescriptor_a139271552183648, []int{6}
 }
 
 func (m *DetectRequest) XXX_Unmarshal(b []byte) error {
@@ -141,7 +428,7 @@ func (m *DetectResponse) Reset()         { *m = DetectResponse{} }
 func (m *DetectResponse) String() string { return proto.CompactTextString(m) }
 func (*DetectResponse) ProtoMessage()    {}
 func (*DetectResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a139271552183648, []int{3}
+	return fileDescriptor_a139271552183648, []int{7}
 }
 
 func (m *DetectResponse) XXX_Unmarshal(b []byte) error {
@@ -172,7 +459,7 @@ func (m *GetRequest) Reset()         { *m = GetRequest{} }
 func (m *GetRequest) String() string { return proto.CompactTextString(m) }
 func (*GetRequest) ProtoMessage()    {}
 func (*GetRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a139271552183648, []int{4}
+	return fileDescriptor_a139271552183648, []int{8}
 }
 
 func (m *GetRequest) XXX_Unmarshal(b []byte) error {
@@ -203,7 +490,7 @@ func (m *GetResponse) Reset()         { *m = GetResponse{} }
 func (m *GetResponse) String() string { return proto.CompactTextString(m) }
 func (*GetResponse) ProtoMessage()    {}
 func (*GetResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_a139271552183648, []int{5}
+	return fileDescriptor_a139271552183648, []int{9}
 }
 
 func (m *GetResponse) XXX_Unmarshal(b []byte) error {
@@ -224,35 +511,134 @@ func (m *GetResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetResponse proto.InternalMessageInfo
 
+type InitializeRequest struct {
+	Vessel               *Vessel  `protobuf:"bytes,1,opt,name=vessel,proto3" json:"vessel,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *InitializeRequest) Reset()         { *m = InitializeRequest{} }
+func (m *InitializeRequest) String() string { return proto.CompactTextString(m) }
+func (*InitializeRequest) ProtoMessage()    {}
+func (*InitializeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a139271552183648, []int{10}
+}
+
+func (m *InitializeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_InitializeRequest.Unmarshal(m, b)
+}
+func (m *InitializeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_InitializeRequest.Marshal(b, m, deterministic)
+}
+func (m *InitializeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitializeRequest.Merge(m, src)
+}
+func (m *InitializeRequest) XXX_Size() int {
+	return xxx_messageInfo_InitializeRequest.Size(m)
+}
+func (m *InitializeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitializeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitializeRequest proto.InternalMessageInfo
+
+func (m *InitializeRequest) GetVessel() *Vessel {
+	if m != nil {
+		return m.Vessel
+	}
+	return nil
+}
+
+type InitializeResponse struct {
+	Vessel               *Vessel  `protobuf:"bytes,1,opt,name=vessel,proto3" json:"vessel,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *InitializeResponse) Reset()         { *m = InitializeResponse{} }
+func (m *InitializeResponse) String() string { return proto.CompactTextString(m) }
+func (*InitializeResponse) ProtoMessage()    {}
+func (*InitializeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a139271552183648, []int{11}
+}
+
+func (m *InitializeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_InitializeResponse.Unmarshal(m, b)
+}
+func (m *InitializeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_InitializeResponse.Marshal(b, m, deterministic)
+}
+func (m *InitializeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InitializeResponse.Merge(m, src)
+}
+func (m *InitializeResponse) XXX_Size() int {
+	return xxx_messageInfo_InitializeResponse.Size(m)
+}
+func (m *InitializeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_InitializeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InitializeResponse proto.InternalMessageInfo
+
+func (m *InitializeResponse) GetVessel() *Vessel {
+	if m != nil {
+		return m.Vessel
+	}
+	return nil
+}
+
 func init() {
+	proto.RegisterType((*IdentificationProperty)(nil), "deltav.protos.IdentificationProperty")
+	proto.RegisterType((*RadiationProperty)(nil), "deltav.protos.RadiationProperty")
+	proto.RegisterType((*SensorProperty)(nil), "deltav.protos.SensorProperty")
+	proto.RegisterType((*DetectableProperty)(nil), "deltav.protos.DetectableProperty")
 	proto.RegisterType((*RegisterRequest)(nil), "deltav.protos.RegisterRequest")
 	proto.RegisterType((*RegisterResponse)(nil), "deltav.protos.RegisterResponse")
 	proto.RegisterType((*DetectRequest)(nil), "deltav.protos.DetectRequest")
 	proto.RegisterType((*DetectResponse)(nil), "deltav.protos.DetectResponse")
 	proto.RegisterType((*GetRequest)(nil), "deltav.protos.GetRequest")
 	proto.RegisterType((*GetResponse)(nil), "deltav.protos.GetResponse")
+	proto.RegisterType((*InitializeRequest)(nil), "deltav.protos.InitializeRequest")
+	proto.RegisterType((*InitializeResponse)(nil), "deltav.protos.InitializeResponse")
 }
 
 func init() { proto.RegisterFile("worldmodel.proto", fileDescriptor_a139271552183648) }
 
 var fileDescriptor_a139271552183648 = []byte{
-	// 242 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x8f, 0x3f, 0x4f, 0xc3, 0x30,
-	0x10, 0xc5, 0x89, 0x90, 0xa2, 0x72, 0x25, 0x6d, 0x74, 0x03, 0x7f, 0x2c, 0xfe, 0xc9, 0x13, 0x62,
-	0xc8, 0xd0, 0xee, 0x4c, 0x88, 0x4c, 0x95, 0x90, 0x17, 0x66, 0x68, 0xae, 0x28, 0x52, 0xa8, 0x43,
-	0x7c, 0xc0, 0x17, 0xe6, 0x83, 0xa0, 0xc4, 0x76, 0xa2, 0x58, 0xcd, 0x78, 0xf7, 0x7b, 0xf7, 0xee,
-	0x3d, 0x48, 0x7f, 0x75, 0x53, 0x15, 0x9f, 0xba, 0xa0, 0x2a, 0xab, 0x1b, 0xcd, 0x1a, 0x93, 0x82,
-	0x2a, 0x7e, 0xfb, 0xb1, 0x93, 0x11, 0x8b, 0x5a, 0x9b, 0x92, 0x4b, 0xbd, 0xb7, 0x0b, 0xf9, 0x0c,
-	0x4b, 0x45, 0x1f, 0xa5, 0x61, 0x6a, 0x14, 0x7d, 0x7d, 0x93, 0x61, 0x5c, 0xc3, 0xcc, 0x8b, 0x2e,
-	0xa2, 0xbb, 0xe8, 0x7e, 0xbe, 0x3a, 0xcf, 0x46, 0x26, 0xd9, 0x8b, 0xc3, 0xaa, 0x17, 0xca, 0x07,
-	0x48, 0x07, 0x1f, 0x53, 0xeb, 0xbd, 0x21, 0x3c, 0x83, 0x98, 0x76, 0x3b, 0xda, 0x72, 0x67, 0x73,
-	0xa2, 0xdc, 0x24, 0x97, 0x90, 0x3c, 0x11, 0xd3, 0x96, 0xdd, 0x47, 0x99, 0xc2, 0xc2, 0x2f, 0xec,
-	0xa9, 0x3c, 0x05, 0xc8, 0xa9, 0xe7, 0x09, 0xcc, 0xbb, 0xc9, 0xc2, 0xd5, 0x5f, 0x04, 0xf0, 0xda,
-	0xf6, 0xdc, 0xb4, 0x3d, 0x71, 0x03, 0x33, 0xff, 0x1a, 0x6f, 0x82, 0xa4, 0x41, 0x37, 0x71, 0x3b,
-	0xc9, 0xdd, 0xe3, 0x23, 0xcc, 0x21, 0xb6, 0x61, 0xf0, 0x2a, 0x10, 0x8f, 0x42, 0x8b, 0xeb, 0x09,
-	0xda, 0x1b, 0x3d, 0xc2, 0x71, 0x4e, 0x8c, 0x97, 0x81, 0x6e, 0xe8, 0x25, 0xc4, 0x21, 0xe4, 0xef,
-	0xdf, 0xe3, 0x6e, 0xbb, 0xfe, 0x0f, 0x00, 0x00, 0xff, 0xff, 0x12, 0x87, 0x18, 0xb6, 0xd4, 0x01,
-	0x00, 0x00,
+	// 494 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x53, 0x51, 0x6f, 0xd3, 0x3c,
+	0x14, 0x5d, 0xd2, 0x4f, 0x55, 0x7b, 0xb3, 0x76, 0x9d, 0xa5, 0x6f, 0x94, 0xa8, 0xb0, 0x2c, 0x12,
+	0x52, 0x85, 0x44, 0x85, 0xb2, 0x07, 0xde, 0x10, 0x0c, 0x50, 0xe9, 0xc3, 0xa4, 0xc9, 0x43, 0xf0,
+	0xc0, 0x03, 0xca, 0xea, 0x5b, 0x64, 0x29, 0xc4, 0xc1, 0x36, 0x43, 0xe5, 0x9f, 0xf0, 0x53, 0xf6,
+	0xef, 0x50, 0x1c, 0x3b, 0x69, 0xb3, 0x16, 0x89, 0x47, 0xdf, 0x73, 0xee, 0xf1, 0xb9, 0xf7, 0xd8,
+	0x30, 0xfa, 0x29, 0x64, 0xc6, 0xbe, 0x09, 0x86, 0xd9, 0xac, 0x90, 0x42, 0x0b, 0x32, 0x60, 0x98,
+	0xe9, 0xf4, 0xb6, 0x3a, 0xa9, 0x70, 0x58, 0x08, 0xc5, 0x35, 0x17, 0x79, 0x55, 0x08, 0x0f, 0x6f,
+	0x51, 0x29, 0x47, 0x8e, 0x3f, 0xc3, 0xc9, 0x82, 0x61, 0xae, 0xf9, 0x8a, 0x2f, 0xd3, 0x92, 0x75,
+	0x25, 0x45, 0x81, 0x52, 0xaf, 0x49, 0x04, 0x81, 0x96, 0x69, 0xae, 0x0a, 0x91, 0x33, 0x94, 0x63,
+	0x2f, 0xf2, 0xa6, 0x7d, 0xba, 0x59, 0x22, 0xa7, 0x10, 0xf0, 0x5c, 0xa3, 0xcc, 0xd3, 0xec, 0x0b,
+	0x67, 0x63, 0xdf, 0x30, 0xc0, 0x95, 0x16, 0x2c, 0x7e, 0x07, 0xc7, 0x34, 0x65, 0x7c, 0x5b, 0xf7,
+	0x39, 0xfc, 0xa7, 0xd7, 0x05, 0x1a, 0xc1, 0x61, 0x32, 0x99, 0x6d, 0xb9, 0x9d, 0xd5, 0xfc, 0x0f,
+	0xeb, 0x02, 0xa9, 0x61, 0xc6, 0x23, 0x18, 0x5e, 0x63, 0xae, 0x84, 0x74, 0x1a, 0xf1, 0x9d, 0x07,
+	0xe4, 0x2d, 0x6a, 0x5c, 0xea, 0xf4, 0x26, 0xc3, 0x5a, 0xfa, 0x05, 0xf8, 0x9c, 0x19, 0xe1, 0x20,
+	0x79, 0xd2, 0x12, 0xde, 0x3d, 0xe5, 0xfb, 0x03, 0xea, 0x73, 0x46, 0x5e, 0x41, 0x5f, 0xba, 0x8b,
+	0xcd, 0x1c, 0x41, 0x12, 0xed, 0x33, 0xb6, 0xd1, 0xda, 0x34, 0x91, 0x09, 0xf4, 0xcb, 0xc1, 0x73,
+	0xc5, 0xf5, 0x7a, 0xcc, 0x22, 0x6f, 0xea, 0xd3, 0xa6, 0x70, 0x01, 0xd0, 0x2b, 0x9c, 0xf7, 0xdf,
+	0x1e, 0x1c, 0x51, 0xfc, 0xca, 0x95, 0x46, 0x49, 0xf1, 0xfb, 0x0f, 0x54, 0x9a, 0x0c, 0x6b, 0xe3,
+	0x7d, 0xe3, 0xe7, 0x1c, 0x7a, 0x2e, 0x35, 0x6b, 0xe7, 0x41, 0xcb, 0xce, 0x95, 0x85, 0x69, 0x4d,
+	0x24, 0xaf, 0x01, 0xec, 0x25, 0x1c, 0xd5, 0xb8, 0x13, 0x75, 0xa6, 0x41, 0x72, 0xd6, 0x6a, 0xbb,
+	0xbf, 0x34, 0xba, 0xd1, 0x14, 0x3f, 0x85, 0x51, 0x63, 0xad, 0x8c, 0x59, 0x21, 0x39, 0x81, 0x2e,
+	0xae, 0x56, 0xb8, 0xd4, 0xd6, 0x9f, 0x3d, 0xc5, 0x47, 0x30, 0xa8, 0xd4, 0xec, 0x10, 0x65, 0x4c,
+	0xae, 0x50, 0xb5, 0xc6, 0x87, 0x00, 0x73, 0xac, 0xf1, 0x01, 0x04, 0xe6, 0x64, 0xc1, 0x0b, 0x38,
+	0x5e, 0xe4, 0x5c, 0xf3, 0x34, 0xe3, 0xbf, 0xd0, 0x2d, 0xe2, 0x19, 0x74, 0xab, 0xe7, 0x69, 0x53,
+	0xfc, 0xbf, 0xe5, 0xff, 0xa3, 0x01, 0xa9, 0x25, 0xc5, 0x6f, 0x80, 0x6c, 0x6a, 0x58, 0xc7, 0xff,
+	0x26, 0x92, 0xdc, 0xf9, 0x00, 0x9f, 0xca, 0x4f, 0x74, 0x59, 0x7e, 0x22, 0x72, 0x09, 0x3d, 0xb7,
+	0x03, 0xf2, 0xb8, 0xfd, 0x08, 0xb6, 0x73, 0x0b, 0x4f, 0xf7, 0xe2, 0x76, 0xc8, 0x03, 0x32, 0x87,
+	0x6e, 0xb5, 0x15, 0x32, 0xd9, 0x99, 0x85, 0x93, 0x7a, 0xb4, 0x07, 0xad, 0x85, 0x5e, 0x42, 0x67,
+	0x8e, 0x9a, 0x3c, 0x6c, 0xf1, 0x9a, 0x05, 0x87, 0xe1, 0x2e, 0xa8, 0xee, 0xbf, 0x06, 0x68, 0x76,
+	0x45, 0xda, 0xcf, 0xfb, 0x5e, 0x14, 0xe1, 0xd9, 0x5f, 0x18, 0x4e, 0xf4, 0xa6, 0x6b, 0xc0, 0xf3,
+	0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x50, 0x2b, 0xd5, 0x19, 0x86, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -270,6 +656,7 @@ type WorldModelClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Detect(ctx context.Context, in *DetectRequest, opts ...grpc.CallOption) (*DetectResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
+	Initialize(ctx context.Context, in *InitializeRequest, opts ...grpc.CallOption) (*InitializeResponse, error)
 }
 
 type worldModelClient struct {
@@ -307,11 +694,21 @@ func (c *worldModelClient) Get(ctx context.Context, in *GetRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *worldModelClient) Initialize(ctx context.Context, in *InitializeRequest, opts ...grpc.CallOption) (*InitializeResponse, error) {
+	out := new(InitializeResponse)
+	err := c.cc.Invoke(ctx, "/deltav.protos.WorldModel/Initialize", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WorldModelServer is the server API for WorldModel service.
 type WorldModelServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Detect(context.Context, *DetectRequest) (*DetectResponse, error)
 	Get(context.Context, *GetRequest) (*GetResponse, error)
+	Initialize(context.Context, *InitializeRequest) (*InitializeResponse, error)
 }
 
 func RegisterWorldModelServer(s *grpc.Server, srv WorldModelServer) {
@@ -372,6 +769,24 @@ func _WorldModel_Get_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WorldModel_Initialize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InitializeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorldModelServer).Initialize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/deltav.protos.WorldModel/Initialize",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorldModelServer).Initialize(ctx, req.(*InitializeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _WorldModel_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "deltav.protos.WorldModel",
 	HandlerType: (*WorldModelServer)(nil),
@@ -387,6 +802,10 @@ var _WorldModel_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _WorldModel_Get_Handler,
+		},
+		{
+			MethodName: "Initialize",
+			Handler:    _WorldModel_Initialize_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
