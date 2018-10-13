@@ -16,11 +16,11 @@ by subracting the latency from the injected latency.
 type PlayerShuttle struct {
 	vessel protos.Vessel
 
-	commandCenter protos.WorldModelServer
+	commandCenter protos.WorldModelClient
 }
 
 func NewPlayerShuttle(vessel protos.Vessel,
-	commandCenter protos.WorldModelServer) (*PlayerShuttle, error) {
+	commandCenter protos.WorldModelClient) (*PlayerShuttle, error) {
 	ps := &PlayerShuttle{vessel: vessel, commandCenter: commandCenter}
 	err := ps.Initialize()
 	return ps, err

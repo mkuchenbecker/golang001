@@ -31,6 +31,10 @@ func (s *server) Get(ctx context.Context, req *protos.GetRequest) (*protos.GetRe
 	return &protos.GetResponse{}, nil
 }
 
+func (s *server) Initialize(ctx context.Context, req *protos.InitializeRequest) (*protos.InitializeResponse, error) {
+	return &protos.InitializeResponse{}, nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {

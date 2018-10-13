@@ -9,6 +9,12 @@ tests: fmt
 	@echo "tests:"
 	${GOPATH}/bin/richgo test ./...
 
+# tests runs all test except those found in ./vendor
+.PHONY: deltav
+deltav: fmt 
+	@echo "deltav:"
+	${GOPATH}/bin/richgo test ./deltav/...
+
 
 .PHONY: fmt
 fmt:
