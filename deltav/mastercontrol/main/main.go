@@ -6,6 +6,7 @@ import (
 	"net"
 	"time"
 
+	master "github.com/golang001/deltav/mastercontrol"
 	protos "github.com/golang001/deltav/protos"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -16,7 +17,9 @@ const (
 	port = ":50051"
 )
 
-type server struct{}
+type server struct {
+	mc *master.MasterControl
+}
 
 func (s *server) Register(ctx context.Context, req *protos.RegisterRequest) (*protos.RegisterResponse, error) {
 	fmt.Printf("Register: %s - %s\n", "req.ID", time.Now().String())
@@ -40,11 +43,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
-	protos.RegisterWorldModelServer(s, &server{})
+	serve := grpc.NewServer()
+	protos.RegisterWorldModelServer(serve, &server{})
 	// Register reflection service on gRPC server.
-	reflection.Register(s)
-	if err := s.Serve(lis); err != nil {
+	reflection.Register(serve)
+	if err := serve.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
