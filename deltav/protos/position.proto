@@ -2,9 +2,17 @@ syntax = "proto3";
 
 package deltav.protos;
 
-message Position {
+message Vector3 {
     double X = 1;
     double Y = 2;
     double Z = 3;
-    int64 T = 4;
+}
+
+message Position {
+    Vector3 position = 1;
+    int64 T = 2;
+}
+
+message Orientation {
+    Vector3 orientation_vector = 1;
 }

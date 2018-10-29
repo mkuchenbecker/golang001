@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package deltav.protos;
+
+message ReactRequest {
+    int64 desiredEnergy = 1;
+}
+
+message ReactorOutput {
+    enum Type {
+        UNKNOWN = 0;
+        ENERGY_JOULES = 1;
+        HEAT_JOULES = 2;
+        GAMMA_JOULES = 3;
+    }
+    Type type = 1;
+    int64 amount = 2; 
+}
+
+message ReactResponse {
+    repeated ReactorOutput outputs = 1;
+}
+
+message GetMassRequest{}
+
+message GetMassResponse{
+    int64 kg;
+}
+
+service Reactor {
+    rpc React(ReactRequest) returns (ReactReponse) {}
+}   

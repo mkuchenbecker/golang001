@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package deltav.protos;
+
+message GetMassRequest{}
+
+message GetMassResponse{
+    int64 kg;
+}
+
+service MassObject {
+    rpc GetMass(GetMassRequest) returns (GetMassResponse) {}
+}   

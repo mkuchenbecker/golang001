@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package deltav.protos;
+
+enum StorageType {
+    UNKNOWN_STORAGE_TYPE = 0;
+    HELIUM3_KG = 1;
+    DEUTERIUM_KG = 2;
+    WATER_KG = 3;
+    ELECTRIC_JOULES = 4;
+    HEAT_JOULES = 5;
+}
+
+message Storage {
+    int64 amount = 1;
+    StorageType type = 2;
+}
+
+message StorageRequest {
+    repeated Storage = 1;
+}
+
+message StorageReponse {
+    repeated Storage = 1;
+    string error = 2;
+}
+
+
+service StorageTank {
+    rpc WithdrawStorage(StorageRequest) returns (StorageResponse) {}
+    rpc AddStorage(StorageRequest) returns (StorageResponse) {}
+}   
