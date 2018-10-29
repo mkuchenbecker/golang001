@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/golang001/deltav/objects/shuttle"
 	protos "github.com/golang001/deltav/protos"
-	"github.com/golang001/deltav/shuttle"
 	"google.golang.org/grpc"
 )
 

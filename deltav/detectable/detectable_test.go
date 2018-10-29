@@ -31,7 +31,7 @@ func getLargeRandomPS(gameLengthMinutes int64, trackableEntities int) *Detectabl
 	return db
 }
 
-func TesDetectableLookback(t *testing.T) {
+func TestDetectableLookback(t *testing.T) {
 	InverseCSquared = 1 //Overwrite to make math easier.
 	var pos PositionSystem = NewDetectableDatabase()
 	pos.Register(NewTraceDetectable(0, 0, 0, 0, "A"))
