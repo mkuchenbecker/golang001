@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package deltav.protos;
+package deltav.model;
 
 message Vector3 {
     double X = 1;

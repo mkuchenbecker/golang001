@@ -1,4 +1,4 @@
-package deltav_protos
+package deltav_model
 
 import "math"
 
@@ -7,9 +7,9 @@ func (p *Vector3) MagnitudeSquared() float64 {
 }
 
 func (p *Vector3) Subtract(n *Vector3) *Vector3 {
-	return &Position{X: p.X - n.X, Y: p.Y - n.Y, Z: p.Z - n.ZT}
+	return &Vector3{X: p.X - n.X, Y: p.Y - n.Y, Z: p.Z - n.Z}
 }
 
 func (p *Position) Subtract(n *Position) *Position {
-	return &Position{Position: p.Position.Subtract(n.position), T: p.T - n.T}
+	return &Position{Position: p.Position.Subtract(n.Position), T: p.T - n.T}
 }

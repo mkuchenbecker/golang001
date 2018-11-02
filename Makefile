@@ -34,9 +34,9 @@ client:
 .PHONY: proto
 proto:
 	@echo "worldmodel:"
-	protoc -I deltav/protos \
-	deltav/protos/position.proto \
-	deltav/protos/vessel.proto \
-	deltav/protos/worldmodel.proto \
+	protoc -I deltav/model \
+	deltav/model/position.proto \
+	deltav/model/vessel.proto \
+	deltav/model/worldmodel.proto \
 	--proto_path=. \
-	--go_out=plugins=grpc:deltav/protos
+	--go_out=plugins=grpc:deltav/model/gomodel
