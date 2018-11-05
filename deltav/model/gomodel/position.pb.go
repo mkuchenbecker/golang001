@@ -20,6 +20,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// Vector3 is a 3D vector. Double is used as compared to float
+// despite being 30% slower because the Math library uses Doubles.
 type Vector3 struct {
 	X                    float64  `protobuf:"fixed64,1,opt,name=X,proto3" json:"X,omitempty"`
 	Y                    float64  `protobuf:"fixed64,2,opt,name=Y,proto3" json:"Y,omitempty"`
@@ -75,6 +77,7 @@ func (m *Vector3) GetZ() float64 {
 	return 0
 }
 
+// Position is a Vector3 spacial position combined with time.
 type Position struct {
 	Position             *Vector3 `protobuf:"bytes,1,opt,name=position,proto3" json:"position,omitempty"`
 	T                    int64    `protobuf:"varint,2,opt,name=T,proto3" json:"T,omitempty"`
@@ -122,55 +125,15 @@ func (m *Position) GetT() int64 {
 	return 0
 }
 
-type Orientation struct {
-	OrientationVector    *Vector3 `protobuf:"bytes,1,opt,name=orientation_vector,json=orientationVector,proto3" json:"orientation_vector,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Orientation) Reset()         { *m = Orientation{} }
-func (m *Orientation) String() string { return proto.CompactTextString(m) }
-func (*Orientation) ProtoMessage()    {}
-func (*Orientation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_56e266f1a28a7893, []int{2}
-}
-
-func (m *Orientation) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Orientation.Unmarshal(m, b)
-}
-func (m *Orientation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Orientation.Marshal(b, m, deterministic)
-}
-func (m *Orientation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Orientation.Merge(m, src)
-}
-func (m *Orientation) XXX_Size() int {
-	return xxx_messageInfo_Orientation.Size(m)
-}
-func (m *Orientation) XXX_DiscardUnknown() {
-	xxx_messageInfo_Orientation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Orientation proto.InternalMessageInfo
-
-func (m *Orientation) GetOrientationVector() *Vector3 {
-	if m != nil {
-		return m.OrientationVector
-	}
-	return nil
-}
-
 func init() {
 	proto.RegisterType((*Vector3)(nil), "deltav.model.Vector3")
 	proto.RegisterType((*Position)(nil), "deltav.model.Position")
-	proto.RegisterType((*Orientation)(nil), "deltav.model.Orientation")
 }
 
 func init() { proto.RegisterFile("position.proto", fileDescriptor_56e266f1a28a7893) }
 
 var fileDescriptor_56e266f1a28a7893 = []byte{
-	// 166 bytes of a gzipped FileDescriptorProto
+	// 136 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2b, 0xc8, 0x2f, 0xce,
 	0x2c, 0xc9, 0xcc, 0xcf, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x49, 0x49, 0xcd, 0x29,
 	0x49, 0x2c, 0xd3, 0xcb, 0xcd, 0x4f, 0x49, 0xcd, 0x51, 0x32, 0xe6, 0x62, 0x0f, 0x4b, 0x4d, 0x2e,
@@ -178,8 +141,6 @@ var fileDescriptor_56e266f1a28a7893 = []byte{
 	0x8c, 0x00, 0xf1, 0x22, 0x25, 0x98, 0x20, 0xbc, 0x48, 0x10, 0x2f, 0x4a, 0x82, 0x19, 0xc2, 0x8b,
 	0x52, 0xf2, 0xe6, 0xe2, 0x08, 0x80, 0x1a, 0x2a, 0x64, 0xc8, 0xc5, 0x01, 0xb3, 0x00, 0xac, 0x99,
 	0xdb, 0x48, 0x54, 0x0f, 0xd9, 0x06, 0x3d, 0xa8, 0xf1, 0x41, 0x70, 0x65, 0x20, 0xc3, 0x42, 0xc0,
-	0x46, 0x33, 0x07, 0x31, 0x86, 0x28, 0x05, 0x73, 0x71, 0xfb, 0x17, 0x65, 0xa6, 0xe6, 0x95, 0x24,
-	0x82, 0x25, 0x5d, 0xb8, 0x84, 0xf2, 0x11, 0xdc, 0xf8, 0x32, 0xb0, 0x6e, 0xfc, 0x26, 0x0b, 0x22,
-	0x69, 0x80, 0x88, 0x25, 0xb1, 0x81, 0xfd, 0x6a, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x6c, 0x2a,
-	0xae, 0x83, 0xfd, 0x00, 0x00, 0x00,
+	0x46, 0x33, 0x07, 0x31, 0x86, 0x24, 0xb1, 0x81, 0x9d, 0x65, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff,
+	0x7e, 0xae, 0xb2, 0x40, 0xa8, 0x00, 0x00, 0x00,
 }
