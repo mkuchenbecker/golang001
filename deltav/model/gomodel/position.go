@@ -2,6 +2,7 @@ package deltav_model
 
 /*
 This file is a value-added addition helper functions on the position/vector struct.
+TODO: Decouple wire interface with go working model.
 */
 import "math"
 
