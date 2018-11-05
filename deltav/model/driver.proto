@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package deltav.protos;
+package deltav.model;
 
-
+import "position.proto";
 /*
 A driver is the system that controls thrust of the whole ship. The ship requests a change in kinetic
 energy and the drive attempts to satisfy the request.
@@ -11,7 +11,7 @@ A Driver will typically contain a reactor, fuel tanks, radiator, and heat sink.
 
 */
 message DriveRequest {
-    Orientation orientation = 1;
+    Vector3 orientation = 1;
     int64 kinetic_energy = 2; 
 }
 
@@ -20,5 +20,5 @@ message DriveResponse {
 }
 
 service Driver {
-    rpc Drive(DriveRequest) returns (DriveResponse)
-}   
+    rpc Drive(DriveRequest) returns (DriveResponse) {}
+}  

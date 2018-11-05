@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package deltav.protos;
+package deltav.model;
 
 message ReactRequest {
     int64 desiredEnergy = 1;
@@ -21,12 +21,6 @@ message ReactResponse {
     repeated ReactorOutput outputs = 1;
 }
 
-message GetMassRequest{}
-
-message GetMassResponse{
-    int64 kg;
-}
-
 service Reactor {
-    rpc React(ReactRequest) returns (ReactReponse) {}
+    rpc React(ReactRequest) returns (ReactResponse) {}
 }   

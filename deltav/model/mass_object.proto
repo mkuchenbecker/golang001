@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package deltav.protos;
+package deltav.model;
 
 message GetMassRequest{}
 
 message GetMassResponse{
-    int64 kg;
+    int64 kg = 1;
 }
 
 service MassObject {

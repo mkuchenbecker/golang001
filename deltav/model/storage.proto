@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package deltav.protos;
+package deltav.model;
 
 enum StorageType {
     UNKNOWN_STORAGE_TYPE = 0;
@@ -17,12 +17,12 @@ message Storage {
 }
 
 message StorageRequest {
-    repeated Storage = 1;
+    repeated Storage storage = 1;
 }
 
-message StorageReponse {
-    repeated Storage = 1;
-    string error = 2;
+message StorageResponse {
+    repeated Storage storage = 1;
+    string err = 2;
 }
 
 

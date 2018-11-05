@@ -1,5 +1,8 @@
 package deltav_model
 
+/*
+This file is a value-added addition helper functions on the position/vector struct.
+*/
 import "math"
 
 func (p *Vector3) MagnitudeSquared() float64 {

@@ -38,5 +38,9 @@ proto:
 	deltav/model/position.proto \
 	deltav/model/vessel.proto \
 	deltav/model/worldmodel.proto \
+	deltav/model/driver.proto \
+	deltav/model/mass_object.proto \
+	deltav/model/reactor.proto \
+	deltav/model/storage.proto \
 	--proto_path=. \
 	--go_out=plugins=grpc:deltav/model/gomodel
