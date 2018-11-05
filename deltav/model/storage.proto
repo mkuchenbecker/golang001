@@ -12,16 +12,16 @@ enum StorageType {
 }
 
 message Storage {
-    int64 amount = 1;
+    double amount = 1;
     StorageType type = 2;
 }
 
 message StorageRequest {
-    repeated Storage storage = 1;
+    Storage storage = 1;
 }
 
 message StorageResponse {
-    repeated Storage storage = 1;
+    Storage storage = 1;
     string err = 2;
 }
 
