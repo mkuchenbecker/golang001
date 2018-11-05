@@ -7,6 +7,7 @@ import (
 	"github.com/golang001/deltav/utils"
 )
 
+// MockReactor returns a rote ReactResponse or error. Used for testing.
 type MockReactor struct {
 	response model.ReactResponse
 	err      error
