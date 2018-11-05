@@ -2,14 +2,14 @@ package reactor
 
 import (
 	"context"
-	"fmt"
 	"math"
 
 	model "github.com/golang001/deltav/model/gomodel"
 	"github.com/golang001/deltav/utils"
 )
 
-/* FusionReactor is a reactor that implaments the GRPC Reactor interface.
+// FusionReactor is a reactor that implaments the GRPC Reactor interface.
+/*
 It works by reacting helium and deuterium and produces heat, energy.
 TODO: For future realism, it should produce a small amount of gamma radiation
 and should slowly degrade over time due to neutron bombardment because a
@@ -37,37 +37,36 @@ func (mr *FusionReactor) React(ctx context.Context, req *model.ReactRequest) (re
 
 	// To get the desired energy, we need to increase the reaction mass in proportion to the efficency of the reaction.
 	invMaxEfficency := 1 / mr.maxEfficency
-	h3Desired := req.DesiredEnergyTeraJoules * inverseTeraJoulesPerKgH3 * invMaxEfficency
 
-	heliumRes, heliumErr := mr.heliumBuffer.WithdrawStorage(ctx,
-		&model.StorageRequest{Storage: &model.Storage{Amount: h3Desired}},
-	)
-	if heliumErr != nil {
-		err = fmt.Errorf("could not access helium: %s", heliumErr.Error())
-		return
+	getFuel := func(fuelTank model.StorageTankClient, desiredAmount float64) (float64, error) {
+		res, err := fuelTank.WithdrawStorage(ctx,
+			&model.StorageRequest{Storage: &model.Storage{Amount: desiredAmount}},
+		)
+		if err != nil {
+			return 0, err
+		}
+		// We might get less back than anticipated.
+		fraction := res.Storage.Amount / desiredAmount // Expensive, consider inverse math.
+		if fraction > 0.99 {                           // Correct for floating point errors.
+			fraction = 1.0
+		}
+		return fraction, nil
 	}
 
-	// We might get less helium back than anticipated.
-	h3Fraction := heliumRes.Storage.Amount / h3Desired // Expensive, consider inverse math.
+	h3Desired := req.DesiredEnergyTeraJoules * inverseTeraJoulesPerKgH3 * invMaxEfficency
+	h3Fraction, err := getFuel(mr.heliumBuffer, h3Desired)
+	if err != nil {
+		return
+	}
 
 	deutDesired := req.DesiredEnergyTeraJoules * inverseTeraJoulesPerKgDeut * invMaxEfficency
-	deutRes, deutErr := mr.deuteriumBuffer.WithdrawStorage(ctx,
-		&model.StorageRequest{Storage: &model.Storage{Amount: deutDesired}},
-	)
-	if deutRes != nil {
-		err = fmt.Errorf("could not access helium: %s", deutErr.Error())
+	deutFraction, err := getFuel(mr.deuteriumBuffer, deutDesired)
+	if err != nil {
 		return
 	}
-	// We might get less deuterium back than anticipated.
-	deutFraction := deutRes.Storage.Amount / deutDesired // Expensive, consider inverse math.
 
 	// We take the min energy fraction as the true fraction.
 	energyFraction := math.Min(h3Fraction, deutFraction)
-
-	if energyFraction > 0.99 { // Correct for floating point errors.
-		energyFraction = 1.0
-	}
-
 	energy := energyFraction * req.DesiredEnergyTeraJoules
 	heat := (1 - mr.maxEfficency) * energy // A fraction of the total output is heat.
 
