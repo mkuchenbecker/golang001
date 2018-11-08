@@ -16,17 +16,35 @@ message Storage {
     StorageType type = 2;
 }
 
-message StorageRequest {
+message AddStorageRequest {
     Storage storage = 1;
 }
 
-message StorageResponse {
+message AddStorageResponse {
     Storage storage = 1;
     string err = 2;
 }
 
+message WithdrawStorageRequest {
+    Storage storage = 1;
+}
+
+message WithdrawStorageResponse {
+    Storage storage = 1;
+    string err = 2;
+}
+
+message StorageStatusRequest{}
+
+message StorageStatusResponse {
+    double capacity = 1;
+    double current = 2;
+    StorageType type = 3;
+}
+
 
 service StorageTank {
-    rpc WithdrawStorage(StorageRequest) returns (StorageResponse) {}
-    rpc AddStorage(StorageRequest) returns (StorageResponse) {}
+    rpc WithdrawStorage(WithdrawStorageRequest) returns (WithdrawStorageResponse) {}
+    rpc AddStorage(AddStorageRequest) returns (AddStorageResponse) {}
+    rpc Status(StorageStatusRequest) returns (StorageStatusResponse) {}
 }   

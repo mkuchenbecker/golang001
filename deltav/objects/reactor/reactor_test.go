@@ -11,4 +11,6 @@ func TestReactor(t *testing.T) {
 	reactor := FusionReactor{}
 	storageRequest := model.StorageRequest{}
 	assert.NotEqual(t, reactor, storageRequest)
+
+	// Figure out grpc mocks
 }
