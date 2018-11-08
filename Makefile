@@ -44,3 +44,15 @@ proto:
 	deltav/model/storage.proto \
 	--proto_path=. \
 	--go_out=plugins=grpc:deltav/model/gomodel
+
+.PHONY: mockgen
+mockgen:
+	@echo "mockgen:"
+	mockgen github.com/golang001/deltav/model/gomodel \
+	StorageTankClient,\
+	ReactorClient \
+	> deltav/model/gomock/gomocks.go
+
+.PHONY: regen
+regen: proto mockgen
+
