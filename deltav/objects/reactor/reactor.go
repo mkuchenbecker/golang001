@@ -19,7 +19,6 @@ type FusionReactor struct {
 	heliumBuffer    model.StorageTankClient
 	deuteriumBuffer model.StorageTankClient
 	maxEfficency    float64 // Should never be above 0.7
-
 }
 
 const (
@@ -40,7 +39,7 @@ func (mr *FusionReactor) React(ctx context.Context, req *model.ReactRequest) (re
 
 	getFuel := func(fuelTank model.StorageTankClient, desiredAmount float64) (float64, error) {
 		res, err := fuelTank.WithdrawStorage(ctx,
-			&model.StorageRequest{Storage: &model.Storage{Amount: desiredAmount}},
+			&model.WithdrawStorageRequest{Storage: &model.Storage{Amount: desiredAmount}},
 		)
 		if err != nil {
 			return 0, err
@@ -68,7 +67,7 @@ func (mr *FusionReactor) React(ctx context.Context, req *model.ReactRequest) (re
 	// We take the min energy fraction as the true fraction.
 	energyFraction := math.Min(h3Fraction, deutFraction)
 	energy := energyFraction * req.DesiredEnergyTeraJoules
-	heat := (1 - mr.maxEfficency) * energy // A fraction of the total output is heat.
+	heat := energy/mr.maxEfficency - energy // A fraction of the total output is heat.
 
 	res = &model.ReactResponse{
 		Outputs: []*model.ReactorOutput{
