@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/golang001/deltav/common/counters"
-	protos "github.com/golang001/deltav/protos"
+	protos "github.com/golang001/deltav/model/gomodel"
 )
 
 // TraceDetectable is a stuct point-in-time history of an object.
@@ -16,7 +16,9 @@ type TraceDetectable struct {
 }
 
 func NewTraceDetectable(x float64, y float64, z float64, t int64, id string) *TraceDetectable {
-	return &TraceDetectable{Pos: protos.Position{X: x, Y: y, Z: z, T: t}, ID: id,
+	return &TraceDetectable{
+		Pos:        protos.Position{Position: &protos.Vector3{X: x, Y: y, Z: z}, T: t},
+		ID:         id,
 		Properties: make(map[PropertyType]*Property)}
 }
 
@@ -46,7 +48,7 @@ func (td *TraceDetectable) Compare(req DetectRequest) bool {
 		return false
 	}
 	deltaPos := td.Pos.Subtract(&req.Pos)
-	sqMag := deltaPos.MagnitudeSquared()
+	sqMag := deltaPos.Position.MagnitudeSquared()
 	lightTravelTimeSquared := sqMag * InverseCSquared
 	deltaTimeSquared := deltaPos.T * deltaPos.T
 	if math.Abs(lightTravelTimeSquared-float64(deltaTimeSquared)) >= 1 {
@@ -84,7 +86,7 @@ func NewDetectableHistory() *DetectableHistory {
 func (hist *DetectableHistory) Insert(d Detectable) {
 	hist.hist[d.GetPosition().T] = d
 	pos := d.GetPosition()
-	var mag float64 = pos.MagnitudeSquared()
+	var mag float64 = pos.Position.MagnitudeSquared()
 	if hist.maxMagnitudeSqrd < mag {
 		hist.maxMagnitudeSqrd = mag
 	}

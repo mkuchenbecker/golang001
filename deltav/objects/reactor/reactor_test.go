@@ -47,10 +47,10 @@ func TestReactor(t *testing.T) {
 
 	expectedResponse := &models.ReactResponse{
 		Outputs: []*models.ReactorOutput{
-			&models.ReactorOutput{
+			{
 				Type:   models.ReactorOutput_ENERGY_TJOULES,
 				Amount: energyDesired},
-			&models.ReactorOutput{
+			{
 				Type:   models.ReactorOutput_HEAT_TJOULES,
 				Amount: energyDesired}, // With an efficency of 50%, half the enregy becomes heat.
 		},

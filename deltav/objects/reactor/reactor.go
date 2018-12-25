@@ -71,8 +71,8 @@ func (mr *FusionReactor) React(ctx context.Context, req *model.ReactRequest) (re
 
 	res = &model.ReactResponse{
 		Outputs: []*model.ReactorOutput{
-			&model.ReactorOutput{Type: model.ReactorOutput_ENERGY_TJOULES, Amount: energy},
-			&model.ReactorOutput{Type: model.ReactorOutput_HEAT_TJOULES, Amount: heat},
+			{Type: model.ReactorOutput_ENERGY_TJOULES, Amount: energy},
+			{Type: model.ReactorOutput_HEAT_TJOULES, Amount: heat},
 		},
 	}
 	err = nil

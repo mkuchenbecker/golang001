@@ -7,7 +7,7 @@ import (
 	"time"
 
 	master "github.com/golang001/deltav/mastercontrol"
-	protos "github.com/golang001/deltav/protos"
+	protos "github.com/golang001/deltav/model/gomodel"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
