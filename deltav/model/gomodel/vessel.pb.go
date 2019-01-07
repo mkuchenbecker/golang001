@@ -38,9 +38,9 @@ var RadiationType_name = map[int32]string{
 
 var RadiationType_value = map[string]int32{
 	"UNKNOWN_RADIATION_TYPE": 0,
-	"RF":                     1,
-	"GAMMA":                  2,
-	"THERM":                  3,
+	"RF":    1,
+	"GAMMA": 2,
+	"THERM": 3,
 }
 
 func (x RadiationType) String() string {

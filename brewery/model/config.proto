@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package brewery.model;
+
+message Location {
+    string port = 1;
+};
+
+message TemperatureSensor {
+    string serial = 1;
+    Location location = 2;
+    string name = 3;
+};
+
+message SSR {
+    Location location = 1;
+    string name = 2;
+};
+
+message BreweryConfig {
+    TemperatureSensor mash = 1;
+    TemperatureSensor boil = 2;
+    TemperatureSensor herms = 3;
+
+    SSR boil_heater = 4;
+
+    ControlScheme scheme = 5;
+};
+
+message ControlScheme {
+    message Boil {
+        float boil_min_temp = 1;
+    }
+
+    message Mash {
+        float mash_min_temp =1;
+        float herms_min_temp = 2;
+        float boil_min_temp = 3;
+    }
+
+    message Power {
+        float power_level = 1; //0-100
+    }
+
+    oneof scheme {
+        Boil boil = 1;
+        Mash mash = 2;
+        Power power = 3;
+    }
+}
+

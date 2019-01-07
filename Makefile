@@ -5,13 +5,13 @@ lint: fmt
 
 # tests runs all test except those found in ./vendor
 .PHONY: tests
-tests: fmt 
+tests: fmt
 	@echo "tests:"
 	${GOPATH}/bin/richgo test ./...
 
 # tests runs all test except those found in ./vendor
 .PHONY: deltav
-deltav: fmt 
+deltav: fmt
 	@echo "deltav:"
 	${GOPATH}/bin/richgo test ./deltav/...
 
@@ -22,7 +22,7 @@ fmt:
 	scripts/fmt
 
 .PHONY: server
-server:	
+server:
 	@echo "starting server (ctrl-C to exit)"
 	go run deltav/mastercontrol/main/main.go
 
@@ -56,3 +56,21 @@ mockgen:
 .PHONY: regen
 regen: proto mockgen
 
+
+.PHONY: brewproto
+brewproto:
+	@echo "worldmodel:"
+	protoc -I brewery/model \
+	brewery/model/config.proto \
+	brewery/model/switch.proto \
+	brewery/model/thermometer.proto \
+	--proto_path=. \
+	--go_out=plugins=grpc:brewery/model/gomodel
+
+.PHONY: brewgen
+brewgen:
+	@echo "mockgen:"
+	mockgen github.com/golang001/brewery/model/gomodel \
+	Switch,\
+	Thermometer \
+	> brewery/model/gomock/gomocks.go
