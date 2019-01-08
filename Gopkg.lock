@@ -32,6 +32,12 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/stianeikeland/go-rpio"
+  packages = ["."]
+  revision = "d43a3ce8186d47f497a6785f997400a1b2f1fdc7"
+  version = "v4.4.0"
+
+[[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
@@ -70,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f8e32e9c040157725063a71a3c3b4dad3c26741cdb422347fbb7c3608ca30547"
+  inputs-digest = "b156aba180573fb5a17fa27dad2e89eb88e08069a6a191c4fa8b3980bc362d12"
   solver-name = "gps-cdcl"
   solver-version = 1
