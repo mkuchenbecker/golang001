@@ -7,7 +7,7 @@ message GetRequest {
 }
 
 message GetResponse {
-    float temperature = 1;
+    double temperature = 1;
 }
 
 service Thermometer {

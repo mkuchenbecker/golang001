@@ -36,7 +36,7 @@ func StartHeater(port int, pin int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	serve := grpc.NewServer()
-	model.RegisterSwitchServer(serve, &HeaterServer{})
+	model.RegisterSwitchServer(serve, &HeaterServer{pin: pin})
 	// Register reflection service on gRPC server.
 	reflection.Register(serve)
 	if err := serve.Serve(lis); err != nil {

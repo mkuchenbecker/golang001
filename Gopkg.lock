@@ -45,6 +45,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/yryz/ds18b20"
+  packages = ["."]
+  revision = "3cf383a406247c49e48a80014f3e17ddee418742"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http/httpguts","http2","http2/hpack","idna","internal/timeseries","trace"]
   revision = "49bb7cea24b1df9410e1712aa6433dae904ff66a"
@@ -76,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b156aba180573fb5a17fa27dad2e89eb88e08069a6a191c4fa8b3980bc362d12"
+  inputs-digest = "01debce590a5d4d2235fe4dd4683e2efabf5b41dd3f371875e1664fa7f671427"
   solver-name = "gps-cdcl"
   solver-version = 1

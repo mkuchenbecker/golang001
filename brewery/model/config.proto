@@ -29,17 +29,16 @@ message BreweryConfig {
 
 message ControlScheme {
     message Boil {
-        float boil_min_temp = 1;
     }
 
     message Mash {
-        float mash_min_temp =1;
-        float herms_min_temp = 2;
-        float boil_min_temp = 3;
+        double mash_min_temp =1;
+        double herms_min_temp = 2;
+        double boil_min_temp = 3;
     }
 
     message Power {
-        float power_level = 1; //0-100
+        double power_level = 1; //0-100
     }
 
     oneof scheme {
