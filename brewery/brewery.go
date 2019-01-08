@@ -18,7 +18,7 @@ type Brewery struct {
 	element model.SwitchClient
 }
 
-func NewController() *Brewery {
+func NewBrewery() *Brewery {
 	return &Brewery{}
 }
 
@@ -28,30 +28,61 @@ func (c *Brewery) ReplaceConfig(scheme *model.ControlScheme) {
 	c.scheme = scheme
 }
 
+func (c *Brewery) mashThermOn() (on bool, err error) {
+	resBoil, err := c.boilSensor.Get(context.Background(), &model.GetRequest{})
+	if err != nil {
+		return false, err
+	}
+	if resBoil.Temperature < c.scheme.GetMash().BoilMinTemp {
+		on = true
+		return
+	}
+
+	resHerms, err := c.hermsSensor.Get(context.Background(), &model.GetRequest{})
+	if err != nil {
+		return false, err
+	}
+	if resHerms.Temperature < c.scheme.GetMash().HermsMinTemp {
+		on = true
+		return
+	}
+
+	resMash, err := c.mashSensor.Get(context.Background(), &model.GetRequest{})
+	if err != nil {
+		return false, err
+	}
+	if resMash.Temperature < c.scheme.GetMash().MashMinTemp && resHerms.Temperature-resMash.Temperature < 5.0 {
+		on = true
+		return
+	}
+	return false, nil
+}
+
 func (c *Brewery) Run() error {
 	c.mux.RLock()
 	defer c.mux.RUnlock()
 	config := c.scheme
-	switch sch := config.Scheme.(type) {
+	switch config.Scheme.(type) {
 	case *model.ControlScheme_Boil_:
 		_, err := c.element.On(context.Background(), &model.OnRequest{})
 		return err
 	case *model.ControlScheme_Mash_:
-		res, err := c.boilSensor.Get(context.Background(), &model.GetRequest{})
+		on, err := c.mashThermOn()
 		if err != nil {
 			return err
 		}
-		if res.Temperature < sch.Mash.BoilMinTemp {
-			_, err := c.element.On(context.Background(), &model.OnRequest{})
-			if err != nil {
-				return err
-			}
 
+		if on {
+			_, err := c.element.On(context.Background(), &model.OnRequest{})
+			return err
 		}
+
+		_, err = c.element.Off(context.Background(), &model.OffRequest{})
+		return err
 	case *model.ControlScheme_Power_:
 	default:
-		_, err := c.element.Off(context.Background(), &model.OffRequest{})
-		return err
 	}
-	return nil
+	_, err := c.element.Off(context.Background(), &model.OffRequest{})
+	return err
+
 }
