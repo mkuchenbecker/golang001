@@ -60,29 +60,39 @@ func (c *Brewery) mashThermOn() (on bool, err error) {
 	return false, nil
 }
 
-func (c *Brewery) Run() error {
+func (c *Brewery) CoilOff() {
+	var err error
+	for i := 0; i < 3; i++ {
+		_, err = c.element.Off(context.Background(), &model.OffRequest{})
+		if err == nil {
+			return
+		}
+	}
+	if err != nil {
+		panic("unable to turn off coil")
+	}
+}
+
+func (c *Brewery) Run(ttlSec int) error {
 	c.mux.RLock()
 	defer c.mux.RUnlock()
 	config := c.scheme
-	switch config.Scheme.(type) {
+	switch sch := config.Scheme.(type) {
 	case *model.ControlScheme_Boil_:
 		_, err := c.element.On(context.Background(), &model.OnRequest{})
 		return err
 	case *model.ControlScheme_Mash_:
-		on, err :=
-			c.mashThermOn()
+		on, err := c.mashThermOn()
 		if err != nil {
 			return err
 		}
-
-		if on {
-			_, err := c.element.On(context.Background(), &model.OnRequest{})
-			return err
+		if !on {
+			c.CoilOff()
 		}
-
-		_, err = c.element.Off(context.Background(), &model.OffRequest{})
+		TurnOnCoil(c.element, time.Duration(ttlSec)*time.Second)
 		return err
 	case *model.ControlScheme_Power_:
+		ToggleSwitch(c.element, int(sch.Power.PowerLevel), ttlSec) // Toggle for one hour.
 	default:
 	}
 	_, err := c.element.Off(context.Background(), &model.OffRequest{})
@@ -91,17 +101,24 @@ func (c *Brewery) Run() error {
 }
 
 func TurnOnCoil(s model.SwitchClient, ttl time.Duration) (err error) {
+	defer func() { //Turning off is deferred so it always runs.
+		fmt.Println("Turning coil off.")
+		_, offErr := s.Off(context.Background(), &model.OffRequest{})
+		if offErr != nil || err != nil {
+			err = fmt.Errorf("encountered heating element errors: '%+v', '%+v'", err, offErr)
+		}
+	}()
+
 	fmt.Println("Turning coil on.")
 	_, err = s.On(context.Background(), &model.OnRequest{})
 	if err != nil {
-		return
+		fmt.Printf("encountered error turning coil on: %+v", err)
+		return err
 	}
 	fmt.Println("Sleep.")
 	timer := time.NewTimer(ttl)
 	<-timer.C
-	fmt.Println("Turning coil off.")
-	_, err = s.Off(context.Background(), &model.OffRequest{})
-	return
+	return err
 }
 
 func ToggleSwitch(s model.SwitchClient, powerLevel int, ttlSeconds int) error {
@@ -125,12 +142,17 @@ func ToggleSwitch(s model.SwitchClient, powerLevel int, ttlSeconds int) error {
 func toggle(s model.SwitchClient, delay time.Duration, ttl time.Duration, interval time.Duration) (err error) {
 	ticker := time.NewTicker(interval)
 	quit := make(chan bool)
+	defer func() { // Make sure the process always exits.
+		quit <- true
+	}()
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
+				fmt.Println("tick")
 				err = TurnOnCoil(s, delay)
 				if err != nil {
+					ticker.Stop()
 					return
 				}
 			case <-quit:
@@ -139,10 +161,12 @@ func toggle(s model.SwitchClient, delay time.Duration, ttl time.Duration, interv
 			}
 		}
 	}()
+	if err != nil {
+		return err
+	}
 
 	timer := time.NewTimer(ttl)
 	<-timer.C
-	quit <- true
 
 	return
 }

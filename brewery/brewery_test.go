@@ -2,6 +2,7 @@ package brewery
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -47,6 +48,27 @@ func TestTimerToggleMultipleCalls(t *testing.T) {
 		time.Duration(1000)*time.Millisecond,
 		time.Duration(100)*time.Millisecond)
 	assert.NoError(t, err)
+}
+
+func TestTurnCoilOnError(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockSwitch := mocks.NewMockSwitchClient(mockCtrl)
+	mockSwitch.EXPECT().On(context.Background(),
+		gomock.Any()).Return(&model.OnResponse{}, fmt.Errorf("unable to turn coil on")).Times(1)
+	mockSwitch.EXPECT().Off(context.Background(),
+		gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
+	err := TurnOnCoil(mockSwitch, 1*time.Millisecond)
+	assert.Error(t, err)
+
+	mockSwitch.EXPECT().On(context.Background(),
+		gomock.Any()).Return(&model.OnResponse{}, nil).Times(1)
+	mockSwitch.EXPECT().Off(context.Background(),
+		gomock.Any()).Return(&model.OffResponse{}, fmt.Errorf("unable to turn coil off")).Times(1)
+	err = TurnOnCoil(mockSwitch, 1*time.Millisecond)
+	assert.Error(t, err)
 }
 
 func TestTimerTogglePowerEdges(t *testing.T) {
