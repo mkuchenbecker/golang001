@@ -71,6 +71,6 @@ brewproto:
 brewgen:
 	@echo "mockgen:"
 	mockgen github.com/golang001/brewery/model/gomodel \
-	Switch,\
-	Thermometer \
+	SwitchClient,\
+	ThermometerClient \
 	> brewery/model/gomock/gomocks.go

@@ -2,7 +2,9 @@ package brewery
 
 import (
 	"context"
+	"fmt"
 	"sync"
+	"time"
 
 	model "github.com/golang001/brewery/model/gomodel"
 )
@@ -67,7 +69,8 @@ func (c *Brewery) Run() error {
 		_, err := c.element.On(context.Background(), &model.OnRequest{})
 		return err
 	case *model.ControlScheme_Mash_:
-		on, err := c.mashThermOn()
+		on, err :=
+			c.mashThermOn()
 		if err != nil {
 			return err
 		}
@@ -85,4 +88,61 @@ func (c *Brewery) Run() error {
 	_, err := c.element.Off(context.Background(), &model.OffRequest{})
 	return err
 
+}
+
+func TurnOnCoil(s model.SwitchClient, ttl time.Duration) (err error) {
+	fmt.Println("Turning coil on.")
+	_, err = s.On(context.Background(), &model.OnRequest{})
+	if err != nil {
+		return
+	}
+	fmt.Println("Sleep.")
+	timer := time.NewTimer(ttl)
+	<-timer.C
+	fmt.Println("Turning coil off.")
+	_, err = s.Off(context.Background(), &model.OffRequest{})
+	return
+}
+
+func ToggleSwitch(s model.SwitchClient, powerLevel int, ttlSeconds int) error {
+	ttl := time.Duration(ttlSeconds) * time.Second
+	if powerLevel < 1 {
+		_, err := s.Off(context.Background(), &model.OffRequest{})
+		return err
+	}
+	if powerLevel > 100 {
+		_, err := s.Off(context.Background(), &model.OffRequest{})
+		return err
+	}
+	if powerLevel == 100 {
+		TurnOnCoil(s, ttl)
+	}
+	interval := 2
+	delay := time.Duration(powerLevel / 100 * interval)
+	return toggle(s, delay, ttl, time.Duration(interval)*time.Second)
+}
+
+func toggle(s model.SwitchClient, delay time.Duration, ttl time.Duration, interval time.Duration) (err error) {
+	ticker := time.NewTicker(interval)
+	quit := make(chan bool)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err = TurnOnCoil(s, delay)
+				if err != nil {
+					return
+				}
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+
+	timer := time.NewTimer(ttl)
+	<-timer.C
+	quit <- true
+
+	return
 }
