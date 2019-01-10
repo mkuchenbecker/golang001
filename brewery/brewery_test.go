@@ -14,7 +14,7 @@ import (
 	mocks "github.com/golang001/brewery/model/gomock"
 )
 
-func TestTimerToggle(t *testing.T) {
+func TestElementPowerLevelToggle(t *testing.T) {
 	t.Parallel()
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -26,13 +26,15 @@ func TestTimerToggle(t *testing.T) {
 	mockSwitch.EXPECT().Off(context.Background(), gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
 	// Interval is 1 second, time on is 0.75s, quit after 1 second.
 	// Result is that the switch should turn on, .75s later turn off, and on the next iteration quit.
-	err := toggle(mockSwitch,
+
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.elementPowerLevelToggle(
 		time.Duration(750)*time.Millisecond,
 		time.Duration(1)*time.Second,
 		time.Duration(1)*time.Second)
 	assert.NoError(t, err)
 }
-func TestTimerToggleMultipleCalls(t *testing.T) {
+func TestElementPowerLevelToggleMultipleLoops(t *testing.T) {
 	t.Parallel()
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -43,14 +45,15 @@ func TestTimerToggleMultipleCalls(t *testing.T) {
 	mockSwitch.EXPECT().Off(context.Background(), gomock.Any()).Return(&model.OffResponse{}, nil).Times(10)
 	// Interval is 1 second, time on is 0.75s, quit after 1.25 second.
 	// Two iterations should occur.
-	err := toggle(mockSwitch,
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.elementPowerLevelToggle(
 		time.Duration(50)*time.Millisecond,
 		time.Duration(1000)*time.Millisecond,
 		time.Duration(100)*time.Millisecond)
 	assert.NoError(t, err)
 }
 
-func TestTurnCoilOnError(t *testing.T) {
+func TestElementOnError(t *testing.T) {
 	t.Parallel()
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -60,18 +63,44 @@ func TestTurnCoilOnError(t *testing.T) {
 		gomock.Any()).Return(&model.OnResponse{}, fmt.Errorf("unable to turn coil on")).Times(1)
 	mockSwitch.EXPECT().Off(context.Background(),
 		gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
-	err := TurnOnCoil(mockSwitch, 1*time.Millisecond)
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.ElementOn(1 * time.Millisecond)
+	assert.Error(t, err)
+
+	mockSwitch.EXPECT().On(context.Background(),
+		gomock.Any()).Return(&model.OnResponse{}, nil).Times(1)
+	// We always attempt to turn the coiloff 3 times.
+	mockSwitch.EXPECT().Off(context.Background(),
+		gomock.Any()).Return(&model.OffResponse{}, fmt.Errorf("unable to turn coil off")).Times(3)
+	err = brewery.ElementOn(1 * time.Millisecond)
+	assert.Error(t, err)
+}
+
+func TestElementPowerLevelToggleError(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockSwitch := mocks.NewMockSwitchClient(mockCtrl)
+	mockSwitch.EXPECT().On(context.Background(),
+		gomock.Any()).Return(&model.OnResponse{}, fmt.Errorf("unable to turn coil on")).Times(1)
+	mockSwitch.EXPECT().Off(context.Background(),
+		gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.elementPowerLevelToggle(9*time.Millisecond, 100*time.Millisecond, 10*time.Millisecond)
 	assert.Error(t, err)
 
 	mockSwitch.EXPECT().On(context.Background(),
 		gomock.Any()).Return(&model.OnResponse{}, nil).Times(1)
 	mockSwitch.EXPECT().Off(context.Background(),
-		gomock.Any()).Return(&model.OffResponse{}, fmt.Errorf("unable to turn coil off")).Times(1)
-	err = TurnOnCoil(mockSwitch, 1*time.Millisecond)
+		gomock.Any()).Return(&model.OffResponse{}, fmt.Errorf("unable to turn coil off")).Times(3)
+
+	err = brewery.elementPowerLevelToggle(9*time.Millisecond, 100*time.Millisecond, 10*time.Millisecond)
 	assert.Error(t, err)
+
 }
 
-func TestTimerTogglePowerEdges(t *testing.T) {
+func TestElementPowerLevel0(t *testing.T) {
 	t.Parallel()
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -79,15 +108,34 @@ func TestTimerTogglePowerEdges(t *testing.T) {
 	mockSwitch := mocks.NewMockSwitchClient(mockCtrl)
 
 	mockSwitch.EXPECT().Off(context.Background(), gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
-	err := ToggleSwitch(mockSwitch, 0, 1)
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.ElementPowerLevel(0, 1)
 	assert.NoError(t, err)
+}
+
+func TestElementPowerLevel101(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockSwitch := mocks.NewMockSwitchClient(mockCtrl)
 
 	mockSwitch.EXPECT().Off(context.Background(), gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
-	err = ToggleSwitch(mockSwitch, 101, 1)
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.ElementPowerLevel(101, 1)
 	assert.NoError(t, err)
+}
+
+func TestElementPowerLevel100(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockSwitch := mocks.NewMockSwitchClient(mockCtrl)
 
 	mockSwitch.EXPECT().Off(context.Background(), gomock.Any()).Return(&model.OffResponse{}, nil).Times(1)
 	mockSwitch.EXPECT().On(context.Background(), gomock.Any()).Return(&model.OnResponse{}, nil).Times(1)
-	err = ToggleSwitch(mockSwitch, 100, 1)
+	brewery := Brewery{element: mockSwitch}
+	err := brewery.ElementPowerLevel(100, 1)
 	assert.NoError(t, err)
 }

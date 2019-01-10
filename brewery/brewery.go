@@ -9,6 +9,10 @@ import (
 	model "github.com/golang001/brewery/model/gomodel"
 )
 
+func print(s string) {
+	fmt.Printf("%s %s\n", time.Now().Format(time.StampMilli), s)
+}
+
 type Brewery struct {
 	scheme *model.ControlScheme
 	mux    sync.RWMutex
@@ -60,113 +64,124 @@ func (c *Brewery) mashThermOn() (on bool, err error) {
 	return false, nil
 }
 
-func (c *Brewery) CoilOff() {
+func (c *Brewery) ElementOff() error {
 	var err error
 	for i := 0; i < 3; i++ {
 		_, err = c.element.Off(context.Background(), &model.OffRequest{})
 		if err == nil {
-			return
+			return err
 		}
 	}
-	if err != nil {
-		panic("unable to turn off coil")
-	}
+	return err
 }
 
-func (c *Brewery) Run(ttlSec int) error {
-	c.mux.RLock()
-	defer c.mux.RUnlock()
-	config := c.scheme
+func (b *Brewery) Run(ttlSec int) error {
+	b.mux.RLock()
+	defer b.mux.RUnlock()
+	ttl := time.Duration(ttlSec) * time.Second
+	config := b.scheme
 	switch sch := config.Scheme.(type) {
 	case *model.ControlScheme_Boil_:
-		_, err := c.element.On(context.Background(), &model.OnRequest{})
+		err := b.ElementOn(ttl)
 		return err
 	case *model.ControlScheme_Mash_:
-		on, err := c.mashThermOn()
+		on, err := b.mashThermOn()
 		if err != nil {
 			return err
 		}
 		if !on {
-			c.CoilOff()
+			err := b.ElementOff()
+			if err != nil {
+				return err
+			}
 		}
-		TurnOnCoil(c.element, time.Duration(ttlSec)*time.Second)
+		b.ElementOn(ttl)
 		return err
 	case *model.ControlScheme_Power_:
-		ToggleSwitch(c.element, int(sch.Power.PowerLevel), ttlSec) // Toggle for one hour.
+		b.ElementPowerLevel(int(sch.Power.PowerLevel), ttlSec) // Toggle for one hour.
 	default:
 	}
-	_, err := c.element.Off(context.Background(), &model.OffRequest{})
-	return err
+	return b.ElementOff()
 
 }
 
-func TurnOnCoil(s model.SwitchClient, ttl time.Duration) (err error) {
-	defer func() { //Turning off is deferred so it always runs.
-		fmt.Println("Turning coil off.")
-		_, offErr := s.Off(context.Background(), &model.OffRequest{})
+func (b *Brewery) ElementOn(ttl time.Duration) (err error) {
+	defer func() {
+		offErr := b.ElementOff()
 		if offErr != nil || err != nil {
-			err = fmt.Errorf("encountered heating element errors: '%+v', '%+v'", err, offErr)
+			err = fmt.Errorf("errors occured: '%s', '%s", offErr, err)
 		}
 	}()
 
-	fmt.Println("Turning coil on.")
-	_, err = s.On(context.Background(), &model.OnRequest{})
+	print("Turning coil on.")
+	_, err = b.element.On(context.Background(), &model.OnRequest{})
 	if err != nil {
-		fmt.Printf("encountered error turning coil on: %+v", err)
+		print(fmt.Sprintf("encountered error turning coil on: %+v", err))
 		return err
 	}
-	fmt.Println("Sleep.")
+	print("Sleep.")
 	timer := time.NewTimer(ttl)
 	<-timer.C
 	return err
 }
 
-func ToggleSwitch(s model.SwitchClient, powerLevel int, ttlSeconds int) error {
+func (b *Brewery) ElementPowerLevel(powerLevel int, ttlSeconds int) error {
 	ttl := time.Duration(ttlSeconds) * time.Second
 	if powerLevel < 1 {
-		_, err := s.Off(context.Background(), &model.OffRequest{})
-		return err
+		err := b.ElementOff()
+		if err != nil {
+			return err
+		}
 	}
 	if powerLevel > 100 {
-		_, err := s.Off(context.Background(), &model.OffRequest{})
-		return err
+		err := b.ElementOff()
+		if err != nil {
+			return err
+		}
 	}
 	if powerLevel == 100 {
-		TurnOnCoil(s, ttl)
+		err := b.ElementOn(ttl)
+		if err != nil {
+			return err
+		}
 	}
 	interval := 2
 	delay := time.Duration(powerLevel / 100 * interval)
-	return toggle(s, delay, ttl, time.Duration(interval)*time.Second)
+	return b.elementPowerLevelToggle(delay, ttl, time.Duration(interval)*time.Second)
 }
 
-func toggle(s model.SwitchClient, delay time.Duration, ttl time.Duration, interval time.Duration) (err error) {
+func (b *Brewery) elementPowerLevelToggle(delay time.Duration, ttl time.Duration, interval time.Duration) error {
 	ticker := time.NewTicker(interval)
 	quit := make(chan bool)
-	defer func() { // Make sure the process always exits.
-		quit <- true
-	}()
+	resErr := make(chan error)
+
 	go func() {
 		for {
+			print("loop")
 			select {
 			case <-ticker.C:
-				fmt.Println("tick")
-				err = TurnOnCoil(s, delay)
+				print("tick")
+				err := b.ElementOn(delay)
 				if err != nil {
-					ticker.Stop()
+					resErr <- err
 					return
 				}
+				print("tock")
 			case <-quit:
 				ticker.Stop()
+				resErr <- nil
 				return
 			}
 		}
 	}()
-	if err != nil {
-		return err
-	}
 
-	timer := time.NewTimer(ttl)
-	<-timer.C
+	go func() { // Make sure the process always exits.
+		print("waiting")
+		timer := time.NewTimer(ttl)
+		<-timer.C
+		print("quit")
+		quit <- true
+	}()
 
-	return
+	return <-resErr
 }
