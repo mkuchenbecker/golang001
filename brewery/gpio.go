@@ -11,14 +11,42 @@ import (
 
 type TemperatureAddress string
 
-func NewTemperatureAddress(address string) (TemperatureAddress, error) {
-	sensors, err := temperature.Sensors()
+type SensorArray interface {
+	Sensors() ([]Sensor, error)
+	Temperature(Sensor) (Celsius, error)
+}
+
+type DefaultSensorArray struct {
+}
+
+type Sensor string
+type Celsius float64
+
+func (d *DefaultSensorArray) Sensors() ([]Sensor, error) {
+	strSli, err := temperature.Sensors()
+	retSli := make([]Sensor, 0)
+	if err != nil {
+		return retSli, err
+	}
+	for _, s := range strSli {
+		retSli = append(retSli, Sensor(s))
+	}
+	return retSli, nil
+}
+
+func (d *DefaultSensorArray) Temperature(sensor Sensor) (Celsius, error) {
+	temp, err := temperature.Temperature(string(sensor))
+	return Celsius(temp), err
+}
+
+func NewTemperatureAddress(address string, sensorArray SensorArray) (TemperatureAddress, error) {
+	sensors, err := sensorArray.Sensors()
 	if err != nil {
 		return "", err
 	}
 
 	for _, sensor := range sensors {
-		if sensor == address {
+		if sensor == Sensor(address) {
 			return TemperatureAddress(address), nil
 		}
 	}
@@ -31,7 +59,14 @@ type Controller interface {
 	ReadTemperature(address TemperatureAddress) (float64, error)
 }
 
+type GPIOPins {
+	Open() error
+	Close() error //more needed, check retuen types
+}
+
 type GPIOController struct {
+	sensorArray SensorArray
+	gpioPins	GPIOPins
 }
 
 func (gpio *GPIOController) PowerPin(pinNum int, on bool) error {
@@ -49,8 +84,8 @@ func (gpio *GPIOController) PowerPin(pinNum int, on bool) error {
 	return nil
 }
 
-func (gp *GPIOController) ReadTemperature(address TemperatureAddress) (float64, error) {
-	return temperature.Temperature(string(address))
+func (gp *GPIOController) ReadTemperature(sensor Sensor) (Celsius, error) {
+	return gp.sensorArray.Temperature(sensor)
 }
 
 type FakeController struct {

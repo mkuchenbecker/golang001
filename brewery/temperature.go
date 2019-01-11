@@ -28,7 +28,7 @@ func StartThermometer(port int, address string) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	serve := grpc.NewServer()
-	addr, err := NewTemperatureAddress(address)
+	addr, err := NewTemperatureAddress(address, &DefaultSensorArray{})
 	if err != nil {
 		log.Fatalf("failed to read address: %v", err)
 	}
