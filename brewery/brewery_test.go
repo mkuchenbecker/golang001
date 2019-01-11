@@ -155,7 +155,7 @@ func NewMockBrewery(mockCtrl *gomock.Controller) *Brewery {
 	}
 }
 
-func TestBreweryGetConstraints(t *testing.T) {
+func TestBreweryGetConstraintsAndMashThermOn(t *testing.T) {
 	t.Parallel()
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
@@ -186,8 +186,102 @@ func TestBreweryGetConstraints(t *testing.T) {
 	assert.Equal(t, []Constraint{Constraint{min: 50, max: 100, val: 60},
 		Constraint{min: 51, max: 60, val: 55},
 		Constraint{min: 49.5, max: 50.5, val: 50.25}}, constraints)
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(60)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(55)}, nil).Times(1)
+
+	brewery.mashSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50.25)}, nil).Times(1)
+
+	on, err := brewery.mashThermOn()
+	assert.NoError(t, err)
+	assert.False(t, on)
 }
 
+func TestBreweryRunMash(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{
+			BoilMinTemp:  50,
+			BoilMaxTemp:  100,
+			HermsMinTemp: 51,
+			HermsMaxTemp: 60,
+			MashMinTemp:  49.5,
+			MashMaxTemp:  50.5,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(60)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(55)}, nil).Times(1)
+
+	brewery.mashSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50.25)}, nil).Times(1)
+
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().Off(context.Background(),
+		&model.OffRequest{}).Return(&model.OffResponse{}, nil).Times(1)
+
+	err := brewery.Run(1)
+	assert.NoError(t, err)
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(60)}, nil).Times(1)
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(55)}, nil).Times(1)
+	brewery.mashSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(45)}, nil).Times(1)
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().On(context.Background(),
+		&model.OnRequest{}).Return(&model.OnResponse{}, nil).Times(1)
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().Off(context.Background(),
+		&model.OffRequest{}).Return(&model.OffResponse{}, nil).Times(1)
+
+	err = brewery.Run(1)
+	assert.NoError(t, err)
+}
+
+func TestBreweryRunBoil(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Boil_{
+		Boil: &model.ControlScheme_Boil{}}})
+
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().On(context.Background(),
+		&model.OnRequest{}).Return(&model.OnResponse{}, nil).Times(1)
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().Off(context.Background(),
+		&model.OffRequest{}).Return(&model.OffResponse{}, nil).Times(1)
+
+	err := brewery.Run(1)
+	assert.NoError(t, err)
+}
+
+func TestBreweryPower(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Power_{
+		Power: &model.ControlScheme_Power{PowerLevel: 100}}})
+
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().On(context.Background(),
+		&model.OnRequest{}).Return(&model.OnResponse{}, nil).Times(1)
+	brewery.element.(*mocks.MockSwitchClient).EXPECT().Off(context.Background(),
+		&model.OffRequest{}).Return(&model.OffResponse{}, nil).Times(1)
+
+	err := brewery.Run(1)
+	assert.NoError(t, err)
+}
 func TestBreweryGetConstraintsError(t *testing.T) {
 	t.Parallel()
 	mockCtrl := gomock.NewController(t)

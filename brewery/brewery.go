@@ -128,6 +128,7 @@ func (b *Brewery) Run(ttlSec int) error {
 			if err != nil {
 				return err
 			}
+			return nil
 		}
 		b.ElementOn(ttl)
 		return err
@@ -135,8 +136,7 @@ func (b *Brewery) Run(ttlSec int) error {
 		b.ElementPowerLevel(int(sch.Power.PowerLevel), ttlSec) // Toggle for one hour.
 	default:
 	}
-	return b.ElementOff()
-
+	return nil
 }
 
 func (b *Brewery) ElementOn(ttl time.Duration) (err error) {
@@ -147,13 +147,11 @@ func (b *Brewery) ElementOn(ttl time.Duration) (err error) {
 		}
 	}()
 
-	print("Turning coil on.")
 	_, err = b.element.On(context.Background(), &model.OnRequest{})
 	if err != nil {
 		print(fmt.Sprintf("encountered error turning coil on: %+v", err))
 		return err
 	}
-	print("Sleep.")
 	timer := time.NewTimer(ttl)
 	<-timer.C
 	return err
@@ -191,16 +189,13 @@ func (b *Brewery) elementPowerLevelToggle(delay time.Duration, ttl time.Duration
 
 	go func() {
 		for {
-			print("loop")
 			select {
 			case <-ticker.C:
-				print("tick")
 				err := b.ElementOn(delay)
 				if err != nil {
 					resErr <- err
 					return
 				}
-				print("tock")
 			case <-quit:
 				ticker.Stop()
 				resErr <- nil
@@ -210,10 +205,8 @@ func (b *Brewery) elementPowerLevelToggle(delay time.Duration, ttl time.Duration
 	}()
 
 	go func() { // Make sure the process always exits.
-		print("waiting")
 		timer := time.NewTimer(ttl)
 		<-timer.C
-		print("quit")
 		quit <- true
 	}()
 
