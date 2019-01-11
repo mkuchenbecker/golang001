@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/golang001/deltav/detectable"
-	protos "github.com/golang001/deltav/protos"
+	protos "github.com/golang001/deltav/model/gomodel"
 	"github.com/satori/go.uuid"
 )
 

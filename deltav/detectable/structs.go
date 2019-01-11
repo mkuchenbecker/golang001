@@ -3,7 +3,7 @@ package detectable
 import (
 	"math"
 
-	protos "github.com/golang001/deltav/protos"
+	protos "github.com/golang001/deltav/model/gomodel"
 )
 
 const C = float64(1000) // Units / second

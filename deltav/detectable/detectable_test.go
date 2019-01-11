@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	protos "github.com/golang001/deltav/protos"
+	protos "github.com/golang001/deltav/model/gomodel"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,9 +21,9 @@ func getLargeRandomPS(gameLengthMinutes int64, trackableEntities int) *Detectabl
 
 	for i := int64(0); i < gameLengthMinutes*60; i++ {
 		for _, obj := range objs {
-			obj.Pos.X += (rand.Float64())
-			obj.Pos.Y += (rand.Float64())
-			obj.Pos.Z += (rand.Float64())
+			obj.Pos.Position.X += (rand.Float64())
+			obj.Pos.Position.Y += (rand.Float64())
+			obj.Pos.Position.Z += (rand.Float64())
 			obj.Pos.T = i
 			db.Register(obj)
 		}
@@ -40,7 +40,7 @@ func TestDetectableLookback(t *testing.T) {
 	pos.Register(NewTraceDetectable(0, 0, 0, 3, "D"))
 	pos.Register(NewTraceDetectable(0, 0, 0, 4, "E"))
 
-	req := DetectRequest{Pos: protos.Position{X: 1, Y: 0, Z: 0, T: 3},
+	req := DetectRequest{Pos: protos.Position{Position: &protos.Vector3{X: 1, Y: 0, Z: 0}, T: 3},
 		Range: 10, Filter: []PropertyType{}}
 
 	resp := pos.Detect(req)
@@ -58,21 +58,21 @@ func TestDetectableRange(t *testing.T) {
 	pos.Register(NewTraceDetectable(10, 0, 0, 0, "C")) //Is not gamma.
 
 	// A is found but c is not because we're filtering for gamma.
-	req := DetectRequest{Pos: protos.Position{X: 0, Y: 0, Z: 0, T: 10},
+	req := DetectRequest{Pos: protos.Position{Position: &protos.Vector3{X: 0, Y: 0, Z: 0}, T: 10},
 		Range: 10, Filter: []PropertyType{GammaRadiation}}
 	resp := pos.Detect(req)
 	assert.Equal(t, 1, len(resp.detected))
 	assert.Equal(t, "A", resp.detected[0].GetID())
 
 	//Won't see B because its too far away
-	req = DetectRequest{Pos: protos.Position{X: 0, Y: 0, Z: 0, T: 100},
+	req = DetectRequest{Pos: protos.Position{Position: &protos.Vector3{X: 0, Y: 0, Z: 0}, T: 100},
 		Range: 10, Filter: []PropertyType{GammaRadiation}}
 
 	resp = pos.Detect(req)
 	assert.Equal(t, 0, len(resp.detected))
 
 	//Will see B with higher range.
-	req = DetectRequest{Pos: protos.Position{X: 0, Y: 0, Z: 0, T: 100},
+	req = DetectRequest{Pos: protos.Position{Position: &protos.Vector3{X: 0, Y: 0, Z: 0}, T: 100},
 		Range: 1000, Filter: []PropertyType{GammaRadiation}}
 
 	resp = pos.Detect(req)
@@ -106,7 +106,7 @@ func TestDetectableMultiItem(t *testing.T) {
 	assert.Equal(t, 100, len(pos.(*DetectableDatabase).db["A"].hist))
 	assert.Equal(t, 100, len(pos.(*DetectableDatabase).db["F"].hist))
 
-	req := DetectRequest{Pos: protos.Position{X: 0, Y: 0, Z: 0, T: 12},
+	req := DetectRequest{Pos: protos.Position{Position: &protos.Vector3{X: 0, Y: 0, Z: 0}, T: 12},
 		Range: 10, Filter: []PropertyType{}}
 
 	resp := pos.Detect(req)
@@ -134,7 +134,7 @@ func TestDetectPerformance(t *testing.T) {
 	pos := getLargeRandomPS(60, 1000)
 
 	beforeTime := time.Now()
-	req := DetectRequest{Pos: protos.Position{X: 0, Y: 0, Z: 0, T: 60},
+	req := DetectRequest{Pos: protos.Position{Position: &protos.Vector3{X: 0, Y: 0, Z: 0}, T: 60},
 		Range: 10, Filter: []PropertyType{}}
 
 	pos.Detect(req)
