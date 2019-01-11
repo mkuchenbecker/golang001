@@ -139,3 +139,227 @@ func TestElementPowerLevel100(t *testing.T) {
 	err := brewery.ElementPowerLevel(100, 1)
 	assert.NoError(t, err)
 }
+
+func boilScheme() *model.ControlScheme {
+	cs := model.ControlScheme{}
+	cs.Scheme = &model.ControlScheme_Boil_{}
+	return &cs
+}
+
+func NewMockBrewery(mockCtrl *gomock.Controller) *Brewery {
+	return &Brewery{
+		hermsSensor: mocks.NewMockThermometerClient(mockCtrl),
+		mashSensor:  mocks.NewMockThermometerClient(mockCtrl),
+		boilSensor:  mocks.NewMockThermometerClient(mockCtrl),
+		element:     mocks.NewMockSwitchClient(mockCtrl),
+	}
+}
+func TestMashThermOnBoilTooLow(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 55,
+			HermsMinTemp: 55,
+			HermsMaxTemp: 60,
+			MashMinTemp:  55,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+	on, err = brewery.mashThermOn()
+	assert.NoError(t, err)
+	assert.True(t, on)
+}
+
+func TestMashThermHermsTooLow(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 55,
+			HermsMaxTemp: 60,
+			MashMinTemp:  0,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.NoError(t, err)
+	assert.True(t, on)
+}
+
+func TestMashThermHermsTooHigh(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 55,
+			HermsMaxTemp: 60,
+			MashMinTemp:  0,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(65)}, nil).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.NoError(t, err)
+	assert.False(t, on)
+}
+
+func TestMashTooLow(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 0,
+			HermsMaxTemp: 55,
+			MashMinTemp:  55,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.mashSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.NoError(t, err)
+	assert.True(t, on)
+}
+
+func TestMashTooHigh(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 0,
+			HermsMaxTemp: 55,
+			MashMinTemp:  55,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.mashSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(60)}, nil).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.NoError(t, err)
+	assert.False(t, on)
+}
+
+func TestMashManageBoilReadError(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 0,
+			HermsMaxTemp: 55,
+			MashMinTemp:  55,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, fmt.Errorf("error")).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.Error(t, err)
+	assert.False(t, on)
+}
+
+func TestMashManageHermsReadError(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 0,
+			HermsMaxTemp: 55,
+			MashMinTemp:  55,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, fmt.Errorf("error")).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.Error(t, err)
+	assert.False(t, on)
+}
+
+func TestMashManageMashReadError(t *testing.T) {
+	t.Parallel()
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	var err error
+	var on bool
+	brewery := NewMockBrewery(mockCtrl)
+	brewery.ReplaceConfig(&model.ControlScheme{Scheme: &model.ControlScheme_Mash_{
+		Mash: &model.ControlScheme_Mash{BoilMinTemp: 0,
+			HermsMinTemp: 0,
+			HermsMaxTemp: 55,
+			MashMinTemp:  50,
+		}}})
+
+	brewery.boilSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.hermsSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, nil).Times(1)
+
+	brewery.mashSensor.(*mocks.MockThermometerClient).EXPECT().Get(context.Background(),
+		&model.GetRequest{}).Return(&model.GetResponse{Temperature: float64(50)}, fmt.Errorf("error")).Times(1)
+
+	on, err = brewery.mashThermOn()
+	assert.Error(t, err)
+	assert.False(t, on)
+}

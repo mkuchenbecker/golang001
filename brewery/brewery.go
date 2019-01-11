@@ -52,12 +52,15 @@ func (c *Brewery) mashThermOn() (on bool, err error) {
 		on = true
 		return
 	}
+	if resHerms.Temperature > c.scheme.GetMash().HermsMaxTemp { //Don't want to overshoot.
+		return false, nil
+	}
 
 	resMash, err := c.mashSensor.Get(context.Background(), &model.GetRequest{})
 	if err != nil {
 		return false, err
 	}
-	if resMash.Temperature < c.scheme.GetMash().MashMinTemp && resHerms.Temperature-resMash.Temperature < 5.0 {
+	if resMash.Temperature < c.scheme.GetMash().MashMinTemp {
 		on = true
 		return
 	}
