@@ -24,47 +24,78 @@ type Brewery struct {
 	element model.SwitchClient
 }
 
-func NewBrewery() *Brewery {
-	return &Brewery{}
-}
-
 func (c *Brewery) ReplaceConfig(scheme *model.ControlScheme) {
 	c.mux.Lock()
 	defer c.mux.Unlock()
 	c.scheme = scheme
 }
 
-func (c *Brewery) mashThermOn() (on bool, err error) {
+func (c *Brewery) getTempConstraints() ([]Constraint, error) {
 	resBoil, err := c.boilSensor.Get(context.Background(), &model.GetRequest{})
 	if err != nil {
-		return false, err
+		return []Constraint{}, err
 	}
-	if resBoil.Temperature < c.scheme.GetMash().BoilMinTemp {
-		on = true
-		return
-	}
-
 	resHerms, err := c.hermsSensor.Get(context.Background(), &model.GetRequest{})
 	if err != nil {
-		return false, err
+		return []Constraint{}, err
 	}
-	if resHerms.Temperature < c.scheme.GetMash().HermsMinTemp {
-		on = true
-		return
-	}
-	if resHerms.Temperature > c.scheme.GetMash().HermsMaxTemp { //Don't want to overshoot.
-		return false, nil
+	resMash, err := c.mashSensor.Get(context.Background(), &model.GetRequest{})
+	if err != nil {
+		return []Constraint{}, err
 	}
 
-	resMash, err := c.mashSensor.Get(context.Background(), &model.GetRequest{})
+	return []Constraint{
+		Constraint{
+			min: c.scheme.GetMash().BoilMinTemp,
+			max: c.scheme.GetMash().BoilMaxTemp,
+			val: resBoil.Temperature,
+		},
+		Constraint{
+			min: c.scheme.GetMash().HermsMinTemp,
+			max: c.scheme.GetMash().HermsMaxTemp,
+			val: resHerms.Temperature,
+		},
+		Constraint{
+			min: c.scheme.GetMash().MashMinTemp,
+			max: c.scheme.GetMash().MashMaxTemp,
+			val: resMash.Temperature,
+		},
+	}, nil
+}
+
+func (c *Brewery) mashThermOn() (on bool, err error) {
+	constraints, err := c.getTempConstraints()
 	if err != nil {
 		return false, err
 	}
-	if resMash.Temperature < c.scheme.GetMash().MashMinTemp {
-		on = true
-		return
+	val := checkTempConstraints(constraints)
+	return val < 0, nil
+}
+
+type Constraint struct {
+	min float64
+	max float64
+	val float64
+}
+
+func (c *Constraint) Check() int {
+	if c.val < c.min {
+		return -1
 	}
-	return false, nil
+	if c.val >= c.max {
+		return 1
+	}
+	return 0
+}
+
+// Returns -1 if some val is too low, 0 if all are met, and 1 if val is too high.
+func checkTempConstraints(constriants []Constraint) int {
+	for _, constriant := range constriants {
+		if val := constriant.Check(); val != 0 {
+			return val
+		}
+	}
+	return 0
 }
 
 func (c *Brewery) ElementOff() error {

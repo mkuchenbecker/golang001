@@ -33,9 +33,11 @@ message ControlScheme {
 
     message Mash {
         double mash_min_temp = 1;
-        double herms_min_temp = 2;
-        double herms_max_temp = 3;
-        double boil_min_temp = 4;
+        double mash_max_temp = 2;
+        double herms_min_temp = 3;
+        double herms_max_temp = 4;
+        double boil_min_temp = 5;
+        double boil_max_temp = 6;
     }
 
     message Power {
