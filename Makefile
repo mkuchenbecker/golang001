@@ -78,9 +78,9 @@ brewmodelmockgen:
 .PHONY: brewstructmockgen
 brewstructmockgen:
 	@echo "generating mocks from structs:"
-	mockgen github.com/golang001/brewery/gpio \
+	mockgen github.com/golang001/brewery/rpi/gpio \
 	Controller\
-	> brewery/gpio/mocks/mock_gpio.go
+	> brewery/rpi/gpio/mocks/mock_gpio.go
 
 .PHONY: brewgen
 brewgen: brewmodelmockgen brewstructmockgen
