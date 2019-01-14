@@ -1,4 +1,4 @@
-package brewery
+package element
 
 import (
 	"context"
@@ -8,13 +8,14 @@ import (
 	"time"
 
 	model "github.com/golang001/brewery/model/gomodel"
+	"github.com/golang001/brewery/rpi/gpio"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 // HeaterServer implements switch.
 type HeaterServer struct {
-	ctrl Controller
+	ctrl gpio.Controller
 	pin  int
 }
 
