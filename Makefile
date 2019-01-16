@@ -67,10 +67,20 @@ brewproto:
 	--proto_path=. \
 	--go_out=plugins=grpc:brewery/model/gomodel
 
-.PHONY: brewgen
-brewgen:
-	@echo "mockgen:"
+.PHONY: brewmodelmockgen
+brewmodelmockgen:
+	@echo "generating mocks from protos:"
 	mockgen github.com/golang001/brewery/model/gomodel \
 	SwitchClient,\
 	ThermometerClient \
-	> brewery/model/gomock/gomocks.go
+	> brewery/model/gomock/gomock_models.go
+
+.PHONY: brewstructmockgen
+brewstructmockgen:
+	@echo "generating mocks from structs:"
+	mockgen github.com/golang001/brewery/rpi/gpio \
+	Controller\
+	> brewery/rpi/gpio/mocks/mock_gpio.go
+
+.PHONY: brewgen
+brewgen: brewmodelmockgen brewstructmockgen

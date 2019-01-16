@@ -1,20 +1,17 @@
-package brewery
+package element
 
 import (
 	"context"
 	"fmt"
-	"log"
-	"net"
 	"time"
 
 	model "github.com/golang001/brewery/model/gomodel"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"github.com/golang001/brewery/rpi/gpio"
 )
 
 // HeaterServer implements switch.
 type HeaterServer struct {
-	ctrl Controller
+	ctrl gpio.Controller
 	pin  int
 }
 
@@ -28,18 +25,4 @@ func (s *HeaterServer) Off(ctx context.Context, req *model.OffRequest) (*model.O
 	fmt.Printf("Off: %s - %s\n", "req.ID", time.Now().String())
 	err := s.ctrl.PowerPin(s.pin, false)
 	return &model.OffResponse{}, err
-}
-
-func StartHeater(port int, pin int) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	serve := grpc.NewServer()
-	model.RegisterSwitchServer(serve, &HeaterServer{pin: pin})
-	// Register reflection service on gRPC server.
-	reflection.Register(serve)
-	if err := serve.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
 }

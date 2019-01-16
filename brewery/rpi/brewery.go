@@ -1,4 +1,4 @@
-package brewery
+package rpi
 
 import (
 	"context"

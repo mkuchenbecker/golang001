@@ -1,26 +1,17 @@
-package brewery
+//+build !test
+
+package sensors
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
 
 	model "github.com/golang001/brewery/model/gomodel"
+	"github.com/golang001/brewery/rpi/gpio"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
-
-// HeaterServer implements switch.
-type ThermometerServer struct {
-	ctrl    Controller
-	address TemperatureAddress
-}
-
-func (s *ThermometerServer) Get(ctx context.Context, req *model.GetRequest) (*model.GetResponse, error) {
-	temp, err := s.ctrl.ReadTemperature(s.address)
-	return &model.GetResponse{Temperature: temp}, err
-}
 
 func StartThermometer(port int, address string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
@@ -28,7 +19,7 @@ func StartThermometer(port int, address string) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	serve := grpc.NewServer()
-	addr, err := NewTemperatureAddress(address)
+	addr, err := gpio.NewTemperatureAddress(address, &gpio.DefaultSensorArray{})
 	if err != nil {
 		log.Fatalf("failed to read address: %v", err)
 	}
