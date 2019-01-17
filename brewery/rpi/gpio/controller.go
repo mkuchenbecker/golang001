@@ -1,23 +1,22 @@
 package gpio
 
 import (
-	"sync"
-
-	rpio "github.com/stianeikeland/go-rpio"
+	"github.com/golang001/brewery/rpi/gpio/igpio"
+	"github.com/golang001/brewery/utils"
 )
 
 type GPIOController struct {
-	sensorArray SensorArray
-	gpioPins    IGpio
+	sensors  igpio.SensorArray
+	gpioPins igpio.IGpio
 }
 
-func (gpio *GPIOController) PowerPin(pinNum int, on bool) error {
-	err := rpio.Open()
+func (gpio *GPIOController) PowerPin(pinNum uint8, on bool) (err error) {
+	err = gpio.gpioPins.Open()
 	if err != nil {
 		return err
 	}
-	defer rpio.Close()
-	pin := rpio.Pin(pinNum)
+	defer utils.DeferErrReturn(gpio.gpioPins.Close, &err)
+	pin := gpio.gpioPins.Pin(pinNum)
 	if on {
 		pin.High()
 	} else {
@@ -26,19 +25,6 @@ func (gpio *GPIOController) PowerPin(pinNum int, on bool) error {
 	return nil
 }
 
-func (gp *GPIOController) ReadTemperature(sensor Sensor) (Celsius, error) {
-	return gp.sensorArray.Temperature(sensor)
-}
-
-type FakeController struct {
-	mux  sync.Mutex
-	pins map[int]bool
-	err  error
-}
-
-func (fc *FakeController) PowerPin(pinNum int, on bool) error {
-	fc.mux.Lock()
-	defer fc.mux.Unlock()
-	fc.pins[pinNum] = on
-	return fc.err
+func (gp *GPIOController) ReadTemperature(sensor igpio.Sensor) (igpio.Celsius, error) {
+	return gp.sensors.Temperature(sensor)
 }

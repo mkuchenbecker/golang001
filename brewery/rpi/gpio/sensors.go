@@ -1,8 +1,11 @@
+//+build !test
+
 package gpio
 
 import (
 	"fmt"
 
+	"github.com/golang001/brewery/rpi/gpio/igpio"
 	temperature "github.com/yryz/ds18b20"
 )
 
@@ -26,7 +29,7 @@ func (d *DefaultSensorArray) Temperature(sensor Sensor) (Celsius, error) {
 	return Celsius(temp), err
 }
 
-func NewTemperatureAddress(address string, sensorArray SensorArray) (TemperatureAddress, error) {
+func NewTemperatureAddress(address string, sensorArray SensorArray) (igpio.TemperatureAddress, error) {
 	sensors, err := sensorArray.Sensors()
 	if err != nil {
 		return "", err
@@ -34,7 +37,7 @@ func NewTemperatureAddress(address string, sensorArray SensorArray) (Temperature
 
 	for _, sensor := range sensors {
 		if sensor == Sensor(address) {
-			return TemperatureAddress(address), nil
+			return igpio.TemperatureAddress(address), nil
 		}
 	}
 

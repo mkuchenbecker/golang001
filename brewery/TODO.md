@@ -1,6 +1,4 @@
 Coding:
-* test temperature.go
-* Test heater.go
 * get to 90% test coverage
 * enforce 90% test coverage on master
 * enable linters on pre-merge

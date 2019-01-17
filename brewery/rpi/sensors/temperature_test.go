@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	model "github.com/golang001/brewery/model/gomodel"
-	"github.com/golang001/brewery/rpi/gpio"
+	gpio "github.com/golang001/brewery/rpi/gpio/igpio"
 
 	"github.com/golang/mock/gomock"
 	mocks "github.com/golang001/brewery/rpi/gpio/mocks"
